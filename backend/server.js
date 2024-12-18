@@ -3,6 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const connection = require('./config/connection')
 const userRoutes = require('./routes/userRoutes')
+const bCardRoutes = require('./routes/cardRoutes')
 
 //init app
 const app = express();
@@ -18,6 +19,7 @@ app.use(cors());
 
 //routes -middleware router "const router = express.Router();"
 app.use("/users", userRoutes);
+app.use("/cards", cardRoutes);
 
 
 
