@@ -1,18 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require("../middleware/auth");
 
 const {
-  addBusinessCard,
-  getBusinessCardById,
-  deleteBusinessCard,
-  updateBusinessCard,
+  addCard,
+  getCardById,
+  deleteCard,
+  updateCard,
 } = require("../controllers/cardController.js");
 
 
-router.post("/card", addBusinessCard);
-router.get("/card/:id", getBusinessCardById);
-router.delete("/card/:id", deleteBusinessCard);
-router.put("/card/:id", updateBusinessCard);
+router.post("/", verifyToken, addCard);
+router.get("/:id", verifyToken, getCardById);
+router.delete("/:id", verifyToken, deleteCard);
+router.put("/:id", verifyToken, updateCard);
 
 
 module.exports = router;

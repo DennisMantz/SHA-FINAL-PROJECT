@@ -1,50 +1,25 @@
 const jwt = require("jsonwebtoken");
-const User = require("../schemas/userSchema");
+const User = require("../models/userSchema");
 
-//check again the site for decoding tokens-> JWT debugger-io
-
-
-//you can save the token
-// verify the token in multiple ways:
-// state [state management tool]
-// local storage
-// cookies
-// session storage
- 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  // console.log(req.headers.authorization);
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized, Token not found" });
   }
 
-  // Check for Bearer format
-  const token = authHeader.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : null;
-
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized, Token format is invalid" });
-  }
-
+  const token = authHeader.split(" ")[1];
   const secretKey = process.env.JWT_SECRET;
-  if (!secretKey) {
-    console.error("Secret key is not defined.");
-    return res.status(500).json({ message: "Server configuration error." });
-  }
 
   try {
     const decoded = jwt.verify(token, secretKey);
-    // console.log(decoded)
-    req.user = await User.findById(decoded.id); // Attach user information to the request object
-    next(); // Pass control to the next middleware
+    req.user = await User.findById(decoded.userId);
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized, User not found" });
+    }
+    next();
   } catch (error) {
     console.error(`JWT Error: ${error.name} - ${error.message}`);
-    res
-      .status(401)
-      .json({ message: "Unauthorized, Token is invalid or expired" });
+    return res.status(401).json({ message: "Unauthorized, Token is invalid or expired" });
   }
 };
 

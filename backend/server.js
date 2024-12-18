@@ -3,14 +3,14 @@ const express = require('express')
 const cors = require('cors')
 const connection = require('./config/connection')
 const userRoutes = require('./routes/userRoutes')
-const bCardRoutes = require('./routes/cardRoutes')
+const cardRoutes = require('./routes/cardRoutes')
 
 //init app
 const app = express();
 const port = 8080;
 
 
-// Connect to the database
+// Connect to the database (check if needed)
 connection();
 
 //middleware
