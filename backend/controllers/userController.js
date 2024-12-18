@@ -1,37 +1,95 @@
+require("dotenv").config();
 const User = require("../models/userSchema");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 
-const addNewUser = async (req, res) => {
-    try {
-        let user = await User.create(req.body);
-        return res.send({msg: "user created", user});
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error", error);
-        
+const register = async (req, res) => {
+  try {
+    let { userName, email, password } = req.body;
+    if (!userName || !email || !password) {
+      return res.status(400).send({ msg: "Please fill all the fields" });
     }
+    let oldUser = await User.findOne({ email });
+    if (oldUser) {
+      return res.status(400).send({ msg: "User already exists" });
+    }
+    let hashedPassword = await bcrypt.hash(password, +process.env.SALT_ROUNDS); // had simple -> 10
+    let newUser = await User.create({
+      userName,
+      email,
+      password: hashedPassword,
+    });
+    return res.send({ msg: "User Created", newUser });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Internal Server Error", error });
+  }
 };
 
 const logIn = async (req, res) => {
-    res.send("LogIn Route");
-};
+  try {
+    let { email, password } = req.body;
 
-const getUserById = async (req, res) => {
-
-    try {
-        let user = await User.findById(req.params.id);
-        return res.send(user);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send("Internal Server Error", error);
+    if (!email || !password) {
+      return res.send({ msg: "Both email and password are required" });
     }
+    let registeredUser = await User.findOne({ email });
+    if (!registeredUser) {
+      return res.send({ msg: "User not found" });
+    }
+    let isPasswordValid = await bcrypt.compare(
+      password,
+      registeredUser.password
+    );
+    if (!isPasswordValid) {
+      return res.send({ msg: "Invalid Password" });
+    }
+
+    //token 
+    let payload = {userId: registeredUser._id, email: registeredUser.email }; // these info will be send with the token - so If I want to render the username -> username: registeredUser.username, ???
+    let secret = process.env.JWT_SECRET;
+    let token = await jwt.sign(payload, secret); // , { exp:"10h" } check the exp syntax again, and check refresh token
+    return res.send({ msg: "Login Successful", token });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Internal Server Error", error });
+  }
 };
 
-const updateUserData = async (req, res) => {
-    res.send("Update User Data Route");
-};
+// const getUserById = async (req, res) => {
 
-const deleteUser = async (req, res) => {
-    res.send("Delete User Route");
-};
+//     try {
+//         let user = await User.findById(req.params.id);
+//         return res.send(user);
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).send({msg: "Internal Server Error", error});
+//     }
+// };
 
-module.exports = { addNewUser, logIn, getUserById, updateUserData, deleteUser };
+// const updateUserData = async (req, res) => {
+//     try {
+//         let newValue = req.body;
+//         let id = req.params.id;
+//         let updatedUser = await User.findByIdAndUpdate(id, newValue, {new: true});
+//         return res.send({msg: "User Updated", updatedUser});
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).send("Internal Server Error", error);
+//     }
+// };
+
+// const deleteUser = async (req, res) => {
+//     try {
+
+//         let id = req.params.id;
+//         let deletedUser = await User.findByIdAndDelete(id,{new: true});
+//         return res.send({msg: "User Deleted", deletedUser});
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).send("Internal Server Error", error);
+//     }
+// };
+//, getUserById, updateUserData, deleteUser
+module.exports = { register, logIn };

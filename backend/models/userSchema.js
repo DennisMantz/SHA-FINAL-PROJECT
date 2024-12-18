@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-//Remember to recheck mongoose schematypes / schemas and validation
+//Remember to recheck mongoose schema types / schemas and validation
 const userSchema = new mongoose.Schema(
   {
     userName: {

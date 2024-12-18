@@ -1,7 +1,8 @@
 // getting-started.js
 const mongoose = require('mongoose');
+require('dotenv').config(); 
 
-const URI ="mongodb+srv://dmantzavinatos:SVhg3aXgrA45iNRN@syncbrodata.gquwu.mongodb.net/?retryWrites=true&w=majority&appName=SyncBroData";
+const URI = process.env.MONGODB_URI 
 
 main()
 .then(() => console.log('MongoDB Connected'))
@@ -9,8 +10,6 @@ main()
 
 async function main() {
   await mongoose.connect(URI);
-
-  // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
  
 module.exports = main;
