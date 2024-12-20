@@ -4,7 +4,7 @@ let addCard = async (req, res) => {
   try {
     const createCard = await Card.create({
       ...req.body,
-      cardCreator: req.user._id, //req.body.cardCreator
+      cardCreator: req.user._id, 
     });
 
     console.log({ msg: "card created", createCard });

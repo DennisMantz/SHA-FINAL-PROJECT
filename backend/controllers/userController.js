@@ -47,9 +47,9 @@ const logIn = async (req, res) => {
     }
 
     //token 
-    let payload = {userId: registeredUser._id, email: registeredUser.email }; // these info will be send with the token - so If I want to render the username -> username: registeredUser.username, ???
+    let payload = {userId: registeredUser._id, email: registeredUser.email }; //If I want to render the username without a new call -> username: registeredUser.username, ???
     let secret = process.env.JWT_SECRET;
-    let token = await jwt.sign(payload, secret); // , { exp:"10h" } check the exp syntax again, and check refresh token
+    let token = await jwt.sign(payload, secret ); // ,{expiresIn:"1h"} --> check refresh token
     return res.send({ msg: "Login Successful", token });
   } catch (error) {
     console.log(error);
