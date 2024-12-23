@@ -7,12 +7,21 @@ const cardSchema = new mongoose.Schema({
   cardAbout: {type: String,},
   cardEmail: {type: String,},
 
-  // cardSocialTitle: {type: String,},
-  cardSocialLinks: {type: String,}, // we need key:value pairs for title linkedin and value link
+  cardSocialLinks: [
+    {
+      title: { type: String, required: true }, //  "LinkedIn"
+      link: { type: String, required: true },  //  "https://linkedin.com/in/user"
+    },
+  ],
 
-  // cardProjectTitle: {type: String,},
-  cardProjectLinks: {type: String,}, // we need key:value pairs
+  cardProjectLinks: [
+    {
+      title: { type: String, required: true }, // "GitHub" "Netlify" "Portfolio"
+      link: { type: String, required: true },  // "https://portfolio.com"
+    },
+  ],
   cardCreator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  cardBackgroundColor: { type: String, default: "#FFFFFF" }, // Default to white
 });
 const Card = mongoose.model("Card", cardSchema);
 module.exports = Card;
