@@ -3,19 +3,19 @@ const mongoose = require("mongoose");
 //Remember to recheck mongoose schema types / schemas and validation
 const userSchema = new mongoose.Schema(
   {
-    userName: {
+    username: {
       type: String,
-      // required: true,
+      required: true
     },
     email: {
       type: String,
-      // required: true,
+      required: true,
       unique: true,
-      lowerCase: true, // Converts email to lowercase aytomatically
+      lowerCase: true // Converts email to lowercase aytomatically
     },
     password: {
       type: String,
-      // required: true,
+      required: true
     },
   }
   // ,
