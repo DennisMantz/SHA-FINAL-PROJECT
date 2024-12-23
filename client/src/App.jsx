@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Login from "./pages/login";
 import Register from './pages/register';
 import Homepage from './pages/homepage';
-
+import Card from './pages/card';
 
 function App() {
 
@@ -14,7 +14,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/homepage" element={<Homepage />} />
+          <Route path="/" element={<Homepage />} />
+          <Route path="/businessCard" element={<Card/>}/>
         </Routes>
       </BrowserRouter>
     </div>
