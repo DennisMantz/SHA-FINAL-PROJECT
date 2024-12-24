@@ -11,7 +11,7 @@ function Homepage() {
         <div>
             <footer className="">
                 <p>Logo</p>
-                <image>Profile picture</image>
+                <p>Profile picture</p>
             </footer>
 
             <section>
@@ -20,7 +20,9 @@ function Homepage() {
 
             <main>
                 <section>
-                    <button onClick={() => navigate("/businessCard")}>BuisnessCard</button></section>
+                    <button onClick={() => navigate("/businessCard/:id")}>BuisnessCard</button>
+                    <button onClick={() => navigate("/businessCards")}>BuisnessCards</button>
+                    </section>
                 <section>MedCard</section>
                 <section>DocSave</section>
             </main>

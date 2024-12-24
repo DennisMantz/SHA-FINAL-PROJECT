@@ -44,6 +44,8 @@ let getCardById = async (req, res) => {
   
   let updateCard = async (req, res) => {
     try {
+      console.log("Updating Card with ID:", req.params.id); // Debugging
+      console.log("Request Body:", req.body); // Debugging
       const card = await Card.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!card) {
         return res.status(404).send({ msg: "Card not found" });
