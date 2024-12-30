@@ -5,12 +5,15 @@ const verifyToken = require("../middleware/auth");
 const {
   addCard,
   getCardById,
+  getAllCards,
   deleteCard,
   updateCard,
 } = require("../controllers/cardController.js");
 
 
 router.post("/", verifyToken, addCard);
+router.get("/", verifyToken, getAllCards);
+
 router.get("/:id", verifyToken, getCardById);
 router.delete("/:id", verifyToken, deleteCard);
 router.put("/:id", verifyToken, updateCard);

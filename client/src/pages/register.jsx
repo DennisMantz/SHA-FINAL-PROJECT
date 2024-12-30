@@ -62,7 +62,7 @@ function Register() {
       if (response.data.token) {
         localStorage.setItem("token", response.data.token); // Store the token if it exists
       }
-      navigate("/login");
+      navigate("/");
 
     } catch (error) {
       // Handle errors

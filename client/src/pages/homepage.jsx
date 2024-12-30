@@ -20,7 +20,7 @@ function Homepage() {
 
             <main>
                 <section>
-                    <button onClick={() => navigate("/businessCard/:id")}>BuisnessCard</button>
+                    
                     <button onClick={() => navigate("/businessCards")}>BuisnessCards</button>
                     </section>
                 <section>MedCard</section>

@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function AllCards() {
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([]); // Holds the user's cards
+  const [canAddCard, setCanAddCard] = useState(true); // Determines if the "Add Card" button is visible
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,53 +16,118 @@ function AllCards() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        setCards(response.data); // Assuming response.data is an array of cards
-      } catch (error) {
-        console.error("Error fetching cards:", error);
-        alert("Error loading cards. Please try again.");
+        const userCards = response.data; // Assuming response.data is an array of cards
+        setCards(userCards);
+       // Check if the user already has 9 cards
+       if (userCards.length >= 9) {
+        setCanAddCard(false); // Disable "Add Card" button if the limit is reached
       }
-    };
+    } catch (error) {
+      console.error("Error fetching cards:", error);
+      alert("Error loading cards. Please try again.");
+    }
+  };
 
-    fetchCards();
-  }, []);
+  fetchCards();
+}, []);
 
-  const handleAddCard = async () => {
+   // Handle adding a new card
+   const handleAddCard = async () => {
+    setLoading(true); // Show loading indicator
     try {
       const response = await axios.post(
         "http://localhost:8080/cards",
-        {
-          cardFirstName: "",
-          cardLastName: "",
-          cardAbout: "New card about section",
-        },
+        {}, // Empty body since defaults are handled by the backend schema
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-      setCards((prevCards) => [...prevCards, response.data.createCard]);
+
+      const newCard = response.data.card;
+      // Update state with the new card
+    setCards((prevCards) => {
+        const updatedCards = [...prevCards, newCard];
+        return updatedCards; // Trigger React re-render
+      });
+
+      // Disable "Add Card" button if adding this card reaches the limit
+      if (cards.length + 1 >= 9) {
+        setCanAddCard(false);
+      }
     } catch (error) {
       console.error("Error adding new card:", error);
       alert("Error creating new card.");
+    } finally {
+        setLoading(false); // Hide loading indicator
+      }
+    };
+
+// Handle deleting a card
+const handleDeleteCard = async (id) => {
+    setLoading(true); // Show loading indicator
+    try {
+      await axios.delete(`http://localhost:8080/cards/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      // Update state to remove the deleted card
+      setCards((prevCards) => prevCards.filter((card) => card._id !== id));
+
+      // Re-enable "Add Card" button if the limit is no longer reached
+      if (cards.length - 1 < 9) {
+        setCanAddCard(true);
+      }
+    } catch (error) {
+      console.error("Error deleting card:", error);
+      alert("Error deleting card.");
+    } finally {
+      setLoading(false); // Hide loading indicator
     }
   };
 
+
+
   return (
     <div>
+      <button onClick={() => navigate("/")}>Back</button>
       <h1>Your Business Cards</h1>
-      <button onClick={handleAddCard}>Add New Card</button>
-      <div>
+      {/* Add New Card Button, hidden if limit reached */}
+      {canAddCard ? (
+        <button onClick={handleAddCard} disabled={loading}>
+          {loading ? "Adding..." : "Add New Card"}
+        </button>
+      ) : (
+        <p>You have reached the maximum card limit of 9.</p>
+      )}
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
         {cards.map((card) => (
           <div
             key={card._id}
-            onClick={() => navigate(`/businessCard/${card._id}`)}
-            style={{ border: "1px solid black", margin: "10px", padding: "10px" }}
+            onClick={() => navigate(`/businessCard/${card._id}`)} // Use the card's unique ID
+            style={{
+              border: "1px solid black",
+              margin: "10px",
+              padding: "10px",
+              cursor: "pointer",
+              width: "200px",
+              textAlign: "center",
+            }}
           >
             <h2>
-              {card.cardFirstName} {card.cardLastName}
+              {card.cardFirstName || "First Name"} {card.cardLastName || "Last Name"}
             </h2>
-            <p>{card.cardAbout}</p>
+            <p>{card.cardAbout || "No details provided."}</p>
+            <button
+              onClick={() => handleDeleteCard(card._id)}
+              style={{ marginTop: "10px", color: "red" }}
+            >
+              Delete Card
+            </button>
           </div>
         ))}
       </div>
