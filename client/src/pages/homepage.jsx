@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import LogoutButton from "../components/logoutButton";
 
 function Homepage() {
   const navigate = useNavigate();
@@ -8,9 +9,10 @@ function Homepage() {
 
 
     return (
-        <div>
+        <div className="bg-red-500">
+            <LogoutButton />
             <footer className="">
-                <p>Logo</p>
+                <p className="text-red-500">Logo</p>
                 <p>Profile picture</p>
             </footer>
 

@@ -6,9 +6,11 @@ import axios from "axios";
 function Card() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [showFullAbout, setShowFullAbout] = useState(false);
 
   // State for card data
   const [card, setCard] = useState({
+    cardTitle: "",
     cardFirstName: "",
     cardLastName: "",
     cardPicture: "", 
@@ -41,8 +43,9 @@ function Card() {
   }, [id]);
 
 
-
+//check how to reduce code here
   const {
+    cardTitle = "",
     cardFirstName = "",
     cardLastName = "",
     cardPicture = "",
@@ -53,13 +56,13 @@ function Card() {
   } = card;
 
 
-  
-  const handleBackgroundColorChange = (e) => {
-    setCard((prevCard) => ({
-      ...prevCard,
-      cardBackgroundColor: e.target.value,
-    }));
-  };
+  //check how to reduce code here
+  // const handleBackgroundColorChange = (e) => {
+  //   setCard((prevCard) => ({
+  //     ...prevCard,
+  //     cardBackgroundColor: e.target.value,
+  //   }));
+  // };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,7 +125,7 @@ function Card() {
 
    return (
     <div>
-      <button onClick={() => navigate("/")}>Back</button>
+      <button onClick={() => navigate("/businessCards")}>Back</button>
 
       {/* Card Display */}
       <div
@@ -161,7 +164,23 @@ function Card() {
             />
           )}
         </div>
+          <div>
+          {isEditing ? (
+            <>
+            <input type="text" 
+             name="cardTitle"
+             value={card.cardTitle}
+             placeholder="Name this Card"
+             onChange={handleInputChange}
+            />
+            </>
+          ) : (
+            <h2>
+              {card.cardTitle}
+            </h2>
+          )}
 
+          </div>
         {/* Name */}
         <div>
           {isEditing ? (
@@ -199,7 +218,34 @@ function Card() {
               style={{ width: "100%", height: "80px" }}
             />
           ) : (
-            <p>{card.cardAbout}</p>
+            <p
+            style={{
+              wordWrap: "break-word",
+              overflowWrap: "break-word",
+              whiteSpace: "normal",
+              maxWidth: "400px", // Optional: Constrain the width
+              
+            }}
+          >
+      {showFullAbout
+        ? card.cardAbout
+        : `${card.cardAbout.substring(0, 100)}...`} {/* Limit to 100 characters */}
+      {card.cardAbout.length > 100 && (
+        <button
+          onClick={() => setShowFullAbout(!showFullAbout)}
+          style={{
+            marginLeft: "5px",
+            background: "none",
+            border: "none",
+            color: "blue",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
+          {showFullAbout ? "See Less" : "See More"}
+        </button>
+      )}
+    </p>
           )}
         </div>
 
@@ -231,18 +277,23 @@ function Card() {
               ))}
               <button onClick={() => addNewLink("cardSocialLinks")}>Add Social Link</button>
             </>
-          ) : card.cardSocialLinks.length > 0 ? (
-            card.cardSocialLinks.map((social, index) => (
+         ) : card.cardSocialLinks.length > 0 ? (
+          card.cardSocialLinks.map((social, index) => {
+            const validLink = social.link.startsWith("http")
+              ? social.link
+              : `https://${social.link}`; // Ensure the link has a valid protocol
+            return (
               <a
                 key={index}
-                href={social.link}
+                href={validLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: "block" }}
+                style={{ display: "block", marginBottom: "5px", color: "blue", textDecoration: "underline" }}
               >
                 {social.title}
               </a>
-            ))
+            );
+          })
           ) : (
             <p>No social links available.</p>
           )}
@@ -265,7 +316,7 @@ function Card() {
                   />
                   <input
                     type="text"
-                    placeholder="Link"
+                     placeholder="Link (e.g., https://example.com)"
                     value={project.link}
                     onChange={(e) =>
                       handleLinkChange(index, "cardProjectLinks", "link", e.target.value)
@@ -277,17 +328,22 @@ function Card() {
               <button onClick={() => addNewLink("cardProjectLinks")}>Add Project Link</button>
             </>
           ) : card.cardProjectLinks.length > 0 ? (
-            card.cardProjectLinks.map((project, index) => (
-              <a
-                key={index}
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: "block" }}
-              >
-                {project.title}
-              </a>
-            ))
+            card.cardProjectLinks.map((project, index) => {
+              const validLink = project.link.startsWith("http")
+                ? project.link
+                : `https://${project.link}`; // Ensure the link has a valid protocol
+              return (
+                <a
+                  key={index}
+                  href={validLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "block", marginBottom: "5px", color: "blue", textDecoration: "underline" }}
+                >
+                  {project.title}
+                </a>
+              );
+            })
           ) : (
             <p>No project links available.</p>
           )}
@@ -295,6 +351,8 @@ function Card() {
 
         {/* Background Color Picker */}
         <div>
+        {isEditing ? (
+            <>
           <label htmlFor="backgroundColor">Background Color:</label>
           <input
             type="color"
@@ -303,6 +361,8 @@ function Card() {
             value={card.cardBackgroundColor}
             onChange={handleInputChange}
           />
+          </>
+          ) : null}
         </div>
 
         {/* Edit/Save Button */}
