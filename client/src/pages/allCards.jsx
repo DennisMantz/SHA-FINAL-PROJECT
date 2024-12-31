@@ -92,7 +92,7 @@ function AllCards() {
 
 
     return (
-        <div>
+        <div className="">
             <button onClick={() => navigate("/")}>Back</button>
             <p>This feature allows for creating and sharing any card, from business cards for your clients showcasing your work, socials for your friends to CV related information.</p>
             {/* Add New Card Button, hidden if limit reached */}
