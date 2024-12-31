@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
+import Navbar from "../components/navbar";
 
 function Card() {
   const navigate = useNavigate();
@@ -125,15 +125,15 @@ function Card() {
 
    return (
     <div>
-      <button onClick={() => navigate("/businessCards")}>Back</button>
-
+      <Navbar />
+      
+      <button onClick={()=>navigate("/businessCards")}>Back</button>
       {/* Card Display */}
-      <div
+      <div className="m-3 p-4 border rounded-lg border-gray-800"
         style={{
           backgroundColor: card.cardBackgroundColor,
-          padding: "20px",
-          borderRadius: "10px",
-          border: "1px solid black",
+         
+         
         }}
       >
         {/* Picture */}

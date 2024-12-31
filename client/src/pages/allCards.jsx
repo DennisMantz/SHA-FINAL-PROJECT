@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from "../components/navbar";
 
 function AllCards() {
     const [cards, setCards] = useState([]); // Holds the user's cards
@@ -93,47 +94,48 @@ function AllCards() {
 
     return (
         <div className="">
-            <button onClick={() => navigate("/")}>Back</button>
-            <p>This feature allows for creating and sharing any card, from business cards for your clients showcasing your work, socials for your friends to CV related information.</p>
-            {/* Add New Card Button, hidden if limit reached */}
-            {canAddCard ? (
-                <button onClick={handleAddCard} disabled={loading}>
-                    {loading ? "Loading..." : "Add New Card"}
-                </button>
-            ) : (
-                <p>You have reached the maximum card limit of 9.</p>
-            )}
+            <Navbar />
+        
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+           
+
+            <div className="grid grid-rows-3 sm:grid-cols-3  " >
                 {cards.map((card) => (
                     <div
                         key={card._id}
-                        onClick={() => navigate(`/businessCard/${card._id}`)} // Use the card's unique ID
-                        style={{
-                            border: "1px solid black",
-                            margin: "10px",
-                            padding: "10px",
-                            cursor: "pointer",
-                            width: "200px",
-                            textAlign: "center",
-                        }}
+                       
+                        className="border-2 border-gray-800 m-3 p-3 cursor-pointer w-[200px] text-center  mx-auto h-[180px] "
+                       
                     >
-                        <h2>
-                            {card.cardTitle || "First Name"}
+                        <div  onClick={() => navigate(`/businessCard/${card._id}`)} // Use the card's unique ID
+                         className="hover:scale-110">
+                        <p className="text-sm">CardName:</p>
+                        <h2 className="text-lg font-bold">
+                            {card.cardTitle || ""}
                         </h2>
-
-                        <button
+                        </div>
+                        <button className="mt-10 text-red-600 hover:scale-110"
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent navigation on delete
                                 handleDeleteCard(card._id);
                             }}
-                            style={{ marginTop: "10px", color: "red" }}
+                           
                         >
                             Delete Card
                         </button>
                     </div>
                 ))}
             </div>
+             {/* Add New Card Button, hidden if limit reached */}
+             {canAddCard ? (
+                <div className="flex justify-center">
+                <button className="bg-gray-800 m-2 text-white border rounded-full p-2 font-bold hover:scale-105 " onClick={handleAddCard} disabled={loading}>
+                    {loading ? "Loading..." : "Bro! Hit me"}
+                </button>
+                </div>
+            ) : (
+                <p className="flex justify-center">BRUH! Really? 9?</p>
+            )}
         </div>
     );
 }

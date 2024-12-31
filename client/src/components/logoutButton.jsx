@@ -13,7 +13,7 @@ function LogoutButton() {
   };
 
   return (
-    <button onClick={handleLogout} style={{ cursor: "pointer" }}>
+    <button className="cursor-pointer hover:scale-105 font-bold text-lg" onClick={handleLogout} >
       Logout
     </button>
   );
