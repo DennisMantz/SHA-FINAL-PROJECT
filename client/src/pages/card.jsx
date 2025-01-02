@@ -200,7 +200,7 @@ function Card() {
 
       <button onClick={() => navigate("/businessCards")}>Back</button>
 
-      
+
       {/* CardTittle */}
       <div className="mx-auto w-[400px] p-4">
         {isEditing ? (
@@ -224,70 +224,89 @@ function Card() {
 
 
       {/* Card Display */}
-      <div className="m-3 p-4 border rounded-lg border-gray-800 w-[400px] h-[600px] mx-auto"
+      <div className="m-3 p-4 border rounded-lg border-gray-800 w-[400px] h-[550px] mx-auto"
         style={{
           backgroundColor: card.cardBackgroundColor,
         }}
       >
 
-
-
-
-        {/* Picture */}
-        <div>
-          {isEditing ? (
-            <>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e.target.files[0])}
+        <div className={`grid ${isEditing ? 'grid-cols-1 gap-6' : 'grid-cols-3'} items-center`}>
+          {/* Picture Section */}
+          <div className="">
+            {isEditing ? (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e.target.files[0])}
+                  className="text-gray-800 "
+                />
+              </>
+            ) : (
+              <img
+                src={card.cardPicture}
+                alt="Profile"
+                className="w-[200px] rounded-full object-cover"
               />
-            </>
-          ) : (
-            <img
-              src={
-                card.cardPicture ||
-                "data:image/png;base64,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"
-              }
-              alt="Profile"
-              style={{
-                width: "100px",
-                height: "100px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                marginBottom: "20px",
-              }}
-            />
-          )}
+            )}
+          </div>
+
+          {/* About Me Section */}
+          <div
+            className={`flex flex-col items-center col-span-2 ${isEditing ? 'space-y-2' : 'space-y-1'}`}>
+            <h3 className="text-gray-800">About Me:</h3>
+            {isEditing ? (
+              <textarea
+                name="cardAbout"
+                value={card.cardAbout}
+                onChange={handleInputChange}
+                className="w-full h-[80px] text-gray-800 border "
+              />
+            ) : (
+              <div className="relative max-h-[100px] overflow-hidden hover:overflow-auto pl-3">
+                <p className="break-words whitespace-normal max-w-[300px]">
+                  {showFullAbout
+                    ? card.cardAbout
+                    : `${card.cardAbout.substring(0, 100)}`}
+                  {card.cardAbout.length > 100 && (
+                    <button
+                      onClick={() => setShowFullAbout(!showFullAbout)}
+                      className="ml-1 bg-none border-none text-gray-800 underline cursor-pointer"
+                    >
+                      {showFullAbout ? 'See Less' : 'See More'}
+                    </button>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-
-
         {/* first+last name */}
-        <div>
+        <div className="mt-3">
           {isEditing ? (
             <>
-            <div className="flex gap-2">
-            <h2>First Name:</h2>
-              <input
-                type="text"
-                name="cardFirstName"
-                value={card.cardFirstName}
-                placeholder="First Name"
-                onChange={handleInputChange}
-                className="text-gray-800"
-              />
-              </div>
               <div className="flex gap-2">
-              <h2>Last Name:</h2>
-              <input
-                type="text"
-                name="cardLastName"
-                value={card.cardLastName}
-                placeholder="Last Name"
-                onChange={handleInputChange}
-                className="text-gray-800"
-              />
+                <h2>First Name:</h2>
+                <input
+                  type="text"
+                  name="cardFirstName"
+                  value={card.cardFirstName}
+                  placeholder="First Name"
+                  onChange={handleInputChange}
+                  className="text-gray-800"
+                />
+              </div>
+              <div className="flex gap-2 mt-1">
+                <h2>Last Name:</h2>
+                <input
+                  type="text"
+                  name="cardLastName"
+                  value={card.cardLastName}
+                  placeholder="Last Name"
+                  onChange={handleInputChange}
+                  className="text-gray-800"
+                />
               </div>
             </>
           ) : (
@@ -297,51 +316,9 @@ function Card() {
           )}
         </div>
 
-        {/* About Me */}
-        <div>
-          <h3>About Me:</h3>
-          {isEditing ? (
-            <textarea
-              name="cardAbout"
-              value={card.cardAbout}
-              onChange={handleInputChange}
-              style={{ width: "100%", height: "80px" }}
-              className="text-gray-800"
-            />
-          ) : (
-            <p
-              style={{
-                wordWrap: "break-word",
-                overflowWrap: "break-word",
-                whiteSpace: "normal",
-                maxWidth: "400px", // Optional: Constrain the width
-
-              }}
-            >
-              {showFullAbout
-                ? card.cardAbout
-                : `${card.cardAbout.substring(0, 100)}`} {/* Limit to 100 characters */}
-              {card.cardAbout.length > 100 && (
-                <button
-                  onClick={() => setShowFullAbout(!showFullAbout)}
-                  style={{
-                    marginLeft: "5px",
-                    background: "none",
-                    border: "none",
-                    color: "blue",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  {showFullAbout ? "See Less" : "See More"}
-                </button>
-              )}
-            </p>
-          )}
-        </div>
 
         {/* Social Links */}
-        <div>
+        <div className="gap-2 mt-3">
           <h3>Social Links</h3>
           {isEditing ? (
             <>
@@ -391,7 +368,7 @@ function Card() {
         </div>
 
         {/* Project Links */}
-        <div>
+        <div className="mt-3">
           <h3>Project Links</h3>
           {isEditing ? (
             <>
@@ -441,7 +418,7 @@ function Card() {
         </div>
 
         {/* Background Color Picker */}
-        <div>
+        {/* <div>
           {isEditing ? (
             <>
               <label htmlFor="backgroundColor">Background Color:</label>
@@ -454,23 +431,23 @@ function Card() {
               />
             </>
           ) : null}
-        </div>
+        </div> */}
 
-        
+
       </div>
       {/* Edit/Save Button */}
       <div style={{ marginTop: "5px", textAlign: "center" }}>
-          {isEditing ? (
-            <>
-              <button onClick={handleSave}>Save</button>
-              <button onClick={handleCancel} style={{ marginLeft: "10px" }}>
-                Cancel
-              </button>
-            </>
-          ) : (
-            <button onClick={toggleEditMode}>Edit</button>
-          )}
-        </div>
+        {isEditing ? (
+          <>
+            <button onClick={handleSave}>Save</button>
+            <button onClick={handleCancel} style={{ marginLeft: "10px" }}>
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button onClick={toggleEditMode}>Edit</button>
+        )}
+      </div>
     </div>
   );
 }

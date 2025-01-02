@@ -16,7 +16,6 @@ const transformCircleImage = (imagePath) => {
     transformation: [
       { width: 250, height: 250, gravity: "faces", crop: "thumb" },
       { radius: "max" },
-      { effect: "outline:10", color: "rgb:F8F3F0" },
       { background: "rgb:DBE0EA" },
     ],
   });
