@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const verifyToken = require("../middleware/auth");
 
+
 const {
   addCard,
   getCardById,
   getAllCards,
   deleteCard,
   updateCard,
+  uploadImage,
 } = require("../controllers/cardController.js");
 
 
@@ -17,7 +19,7 @@ router.get("/", verifyToken, getAllCards);
 router.get("/:id", verifyToken, getCardById);
 router.delete("/:id", verifyToken, deleteCard);
 router.put("/:id", verifyToken, updateCard);
-
+router.post("/:id/upload-image", verifyToken, uploadImage);
 
 module.exports = router;
 

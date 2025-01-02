@@ -13,15 +13,15 @@ function Card() {
     cardTitle: "",
     cardFirstName: "",
     cardLastName: "",
-    cardPicture: "", 
-    cardAbout: "This is a brief about me section.", 
-    cardSocialLinks: [], 
+    cardPicture: "",
+    cardAbout: "This is a brief about me section.",
+    cardSocialLinks: [],
     cardProjectLinks: [],
     cardBackgroundColor: "#FFFFFF",
   });
 
-  const [isEditing, setIsEditing] = useState(false); 
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [originalCard, setOriginalCard] = useState(null); // Stores the original data for cancellation
 
   // Fetch card data 
   useEffect(() => {
@@ -43,26 +43,26 @@ function Card() {
   }, [id]);
 
 
-//check how to reduce code here
-  const {
-    cardTitle = "",
-    cardFirstName = "",
-    cardLastName = "",
-    cardPicture = "",
-    cardAbout = "",
-    cardSocialLinks = [],
-    cardProjectLinks = [],
-    cardBackgroundColor = "#FFFFFF",
-  } = card;
+  // //check how to reduce code here
+  // const {
+  //   cardTitle = "",
+  //   cardFirstName = "",
+  //   cardLastName = "",
+  //   cardPicture = "",
+  //   cardAbout = "",
+  //   cardSocialLinks = [],
+  //   cardProjectLinks = [],
+  //   cardBackgroundColor = "#FFFFFF",
+  // } = card;
 
 
-  //check how to reduce code here
-  // const handleBackgroundColorChange = (e) => {
-  //   setCard((prevCard) => ({
-  //     ...prevCard,
-  //     cardBackgroundColor: e.target.value,
-  //   }));
-  // };
+  // //check how to reduce code here
+  // // const handleBackgroundColorChange = (e) => {
+  // //   setCard((prevCard) => ({
+  // //     ...prevCard,
+  // //     cardBackgroundColor: e.target.value,
+  // //   }));
+  // // };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,8 +71,8 @@ function Card() {
       [name]: value,
     }));
   };
-   // Handle changes to social or project links
-   const handleLinkChange = (index, type, field, value) => {
+  // Handle changes to social or project links
+  const handleLinkChange = (index, type, field, value) => {
     const updatedLinks = [...card[type]];
     updatedLinks[index][field] = value;
     setCard((prevCard) => ({
@@ -80,7 +80,7 @@ function Card() {
       [type]: updatedLinks,
     }));
   };
-   // Add a new link (social or project)
+  // Add a new link (social or project)
   const addNewLink = (type) => {
     const newLink = { title: "", link: "" };
     setCard((prevCard) => ({
@@ -88,23 +88,24 @@ function Card() {
       [type]: [...prevCard[type], newLink],
     }));
   };
- // Remove a link (social or project)
- const removeLink = (index, type) => {
-  const updatedLinks = [...card[type]];
-  updatedLinks.splice(index, 1);
-  setCard((prevCard) => ({
-    ...prevCard,
-    [type]: updatedLinks,
-  }));
-};
-  
+  // Remove a link (social or project)
+  const removeLink = (index, type) => {
+    const updatedLinks = [...card[type]];
+    updatedLinks.splice(index, 1);
+    setCard((prevCard) => ({
+      ...prevCard,
+      [type]: updatedLinks,
+    }));
+  };
+
   const toggleEditMode = () => {
+    setOriginalCard({ ...card }); // Store the original card data
     setIsEditing(!isEditing);
   };
 
-  
-   // Save changes
-   const handleSave = async () => {
+
+  // Save changes
+  const handleSave = async () => {
     try {
       await axios.put(
         `http://localhost:8080/cards/${id}`,
@@ -123,35 +124,130 @@ function Card() {
     }
   };
 
-   return (
+  const handleCancel = () => {
+    setCard(originalCard); // Revert to the original card data
+    setIsEditing(false);
+  };
+
+
+  // const handleImageUpload = async (file) => {
+  //   const formData = new FormData();
+  //   formData.append("image", file);
+
+  //   try {
+  //     const response = await axios.post(
+  //       `http://localhost:8080/cards/${id}/upload-image`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+
+  //     const updatedCard = response.data.card;
+
+  //     // Update the card state
+  //     setCard((prevCard) => ({ ...prevCard, cardPicture: updatedCard.cardPicture }));
+  //     alert("Image uploaded successfully!");
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error.message);
+  //     alert("Image upload failed.");
+  //   }
+  // };
+
+  const handleImageUpload = async (file) => {
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const base64Image = reader.result;
+
+      try {
+        const response = await axios.post(
+          `http://localhost:8080/cards/${id}/upload-image`, // Include the card ID
+          { image: base64Image },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const updatedCard = response.data.card;
+
+        // Update the card state
+        setCard((prevCard) => ({ ...prevCard, cardPicture: updatedCard.cardPicture }));
+        alert("Image uploaded successfully!");
+      } catch (error) {
+        console.error("Error uploading image:", error.message);
+        alert("Image upload failed.");
+      }
+    };
+
+    if (file) {
+      reader.readAsDataURL(file); // Convert file to Base64
+    } else {
+      alert("Please select a file to upload.");
+    }
+  };
+
+
+  return (
     <div>
       <Navbar />
+
+      <button onClick={() => navigate("/businessCards")}>Back</button>
+
       
-      <button onClick={()=>navigate("/businessCards")}>Back</button>
+      {/* CardTittle */}
+      <div className="mx-auto w-[400px] p-4">
+        {isEditing ? (
+          <>
+            <label htmlFor="cardTitle" className="mr-2">
+              Card Name:
+            </label>
+            <input
+              id="cardTitle"
+              type="text"
+              name="cardTitle"
+              value={card.cardTitle}
+              placeholder="Name this Card"
+              onChange={handleInputChange}
+            />
+          </>
+        ) : null}
+      </div>
+
+
+
+
       {/* Card Display */}
-      <div className="m-3 p-4 border rounded-lg border-gray-800"
+      <div className="m-3 p-4 border rounded-lg border-gray-800 w-[400px] h-[600px] mx-auto"
         style={{
           backgroundColor: card.cardBackgroundColor,
-         
-         
         }}
       >
+
+
+
+
         {/* Picture */}
         <div>
           {isEditing ? (
-            <input
-              type="text"
-              name="cardPicture"
-              value={card.cardPicture}
-              placeholder="Picture URL"
-              onChange={handleInputChange}
-              style={{ width: "100%" }}
-            />
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e.target.files[0])}
+              />
+            </>
           ) : (
             <img
               src={
                 card.cardPicture ||
-                "data:image/png;base64,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"
+                "data:image/png;base64,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"
               }
               alt="Profile"
               style={{
@@ -164,41 +260,35 @@ function Card() {
             />
           )}
         </div>
-          <div>
-          {isEditing ? (
-            <>
-            <input type="text" 
-             name="cardTitle"
-             value={card.cardTitle}
-             placeholder="Name this Card"
-             onChange={handleInputChange}
-            />
-            </>
-          ) : (
-            <h2>
-              {card.cardTitle}
-            </h2>
-          )}
 
-          </div>
-        {/* Name */}
+
+
+        {/* first+last name */}
         <div>
           {isEditing ? (
             <>
+            <div className="flex gap-2">
+            <h2>First Name:</h2>
               <input
                 type="text"
                 name="cardFirstName"
                 value={card.cardFirstName}
                 placeholder="First Name"
                 onChange={handleInputChange}
+                className="text-gray-800"
               />
+              </div>
+              <div className="flex gap-2">
+              <h2>Last Name:</h2>
               <input
                 type="text"
                 name="cardLastName"
                 value={card.cardLastName}
                 placeholder="Last Name"
                 onChange={handleInputChange}
+                className="text-gray-800"
               />
+              </div>
             </>
           ) : (
             <h2>
@@ -209,43 +299,44 @@ function Card() {
 
         {/* About Me */}
         <div>
-          <h3>About Me</h3>
+          <h3>About Me:</h3>
           {isEditing ? (
             <textarea
               name="cardAbout"
               value={card.cardAbout}
               onChange={handleInputChange}
               style={{ width: "100%", height: "80px" }}
+              className="text-gray-800"
             />
           ) : (
             <p
-            style={{
-              wordWrap: "break-word",
-              overflowWrap: "break-word",
-              whiteSpace: "normal",
-              maxWidth: "400px", // Optional: Constrain the width
-              
-            }}
-          >
-      {showFullAbout
-        ? card.cardAbout
-        : `${card.cardAbout.substring(0, 100)}...`} {/* Limit to 100 characters */}
-      {card.cardAbout.length > 100 && (
-        <button
-          onClick={() => setShowFullAbout(!showFullAbout)}
-          style={{
-            marginLeft: "5px",
-            background: "none",
-            border: "none",
-            color: "blue",
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}
-        >
-          {showFullAbout ? "See Less" : "See More"}
-        </button>
-      )}
-    </p>
+              style={{
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
+                whiteSpace: "normal",
+                maxWidth: "400px", // Optional: Constrain the width
+
+              }}
+            >
+              {showFullAbout
+                ? card.cardAbout
+                : `${card.cardAbout.substring(0, 100)}`} {/* Limit to 100 characters */}
+              {card.cardAbout.length > 100 && (
+                <button
+                  onClick={() => setShowFullAbout(!showFullAbout)}
+                  style={{
+                    marginLeft: "5px",
+                    background: "none",
+                    border: "none",
+                    color: "blue",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  {showFullAbout ? "See Less" : "See More"}
+                </button>
+              )}
+            </p>
           )}
         </div>
 
@@ -277,23 +368,23 @@ function Card() {
               ))}
               <button onClick={() => addNewLink("cardSocialLinks")}>Add Social Link</button>
             </>
-         ) : card.cardSocialLinks.length > 0 ? (
-          card.cardSocialLinks.map((social, index) => {
-            const validLink = social.link.startsWith("http")
-              ? social.link
-              : `https://${social.link}`; // Ensure the link has a valid protocol
-            return (
-              <a
-                key={index}
-                href={validLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: "block", marginBottom: "5px", color: "blue", textDecoration: "underline" }}
-              >
-                {social.title}
-              </a>
-            );
-          })
+          ) : card.cardSocialLinks.length > 0 ? (
+            card.cardSocialLinks.map((social, index) => {
+              const validLink = social.link.startsWith("http")
+                ? social.link
+                : `https://${social.link}`; // Ensure the link has a valid protocol
+              return (
+                <a
+                  key={index}
+                  href={validLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "block", marginBottom: "5px", color: "blue", textDecoration: "underline" }}
+                >
+                  {social.title}
+                </a>
+              );
+            })
           ) : (
             <p>No social links available.</p>
           )}
@@ -316,7 +407,7 @@ function Card() {
                   />
                   <input
                     type="text"
-                     placeholder="Link (e.g., https://example.com)"
+                    placeholder="Link (e.g., https://example.com)"
                     value={project.link}
                     onChange={(e) =>
                       handleLinkChange(index, "cardProjectLinks", "link", e.target.value)
@@ -351,29 +442,35 @@ function Card() {
 
         {/* Background Color Picker */}
         <div>
-        {isEditing ? (
+          {isEditing ? (
             <>
-          <label htmlFor="backgroundColor">Background Color:</label>
-          <input
-            type="color"
-            id="backgroundColor"
-            name="cardBackgroundColor"
-            value={card.cardBackgroundColor}
-            onChange={handleInputChange}
-          />
-          </>
+              <label htmlFor="backgroundColor">Background Color:</label>
+              <input
+                type="color"
+                id="backgroundColor"
+                name="cardBackgroundColor"
+                value={card.cardBackgroundColor}
+                onChange={handleInputChange}
+              />
+            </>
           ) : null}
         </div>
 
-        {/* Edit/Save Button */}
-        <div style={{ marginTop: "20px", textAlign: "center" }}>
+        
+      </div>
+      {/* Edit/Save Button */}
+      <div style={{ marginTop: "5px", textAlign: "center" }}>
           {isEditing ? (
-            <button onClick={handleSave}>Save</button>
+            <>
+              <button onClick={handleSave}>Save</button>
+              <button onClick={handleCancel} style={{ marginLeft: "10px" }}>
+                Cancel
+              </button>
+            </>
           ) : (
             <button onClick={toggleEditMode}>Edit</button>
           )}
         </div>
-      </div>
     </div>
   );
 }

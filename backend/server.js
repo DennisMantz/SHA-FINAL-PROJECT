@@ -14,8 +14,17 @@ const port = 8080;
 connection();
 
 //middleware
-app.use(express.json());
-app.use(cors());
+app.use(express.json({ limit: "50mb" })); // Increase JSON payload limit
+app.use(express.urlencoded({ limit: "10mb", extended: true })); // For URL-encoded payloads
+// Configure CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from your frontend origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    allowedHeaders: ["Authorization", "Content-Type"], // Allowed headers
+    credentials: true, // Allow cookies, if needed
+  })
+);
 
 //routes -middleware router "const router = express.Router();"
 app.use("/users", userRoutes);

@@ -1,5 +1,5 @@
 const Card = require("../models/cardSchema");
-
+const { cloudinary, transformCircleImage } = require("../index");
 
 // Create a new card (empty or with data)
 const addCard = async (req, res) => {
@@ -99,10 +99,47 @@ const deleteCard = async (req, res) => {
   }
 };
 
+const uploadImage = async (req, res) => {
+  try {
+    const file = req.file || req.body.image; // Handle FormData or Base64
+    if (!file) {
+      return res.status(400).json({ msg: "No file uploaded" });
+    }
+
+    // Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(file, {
+      folder: "syncbro_cards",
+      use_filename: true,
+      unique_filename: false,
+      overwrite: true,
+    });
+
+    // Get the transformed circular image URL
+    const transformedUrl = transformCircleImage(result.public_id);
+
+     // Update card in MongoDB with Cloudinary URL
+    const updatedCard = await Card.findByIdAndUpdate(
+      req.params.id,
+      { cardPicture: transformedUrl },
+      { new: true }
+    );
+
+    res.status(200).json({
+      msg: "Image uploaded successfully",
+      card: updatedCard,
+    });
+  } catch (error) {
+    console.error("Error uploading image:", error.message);
+    res.status(500).json({ msg: "Internal server error", error: error.message });
+  }
+};
+
+
 module.exports = {
   addCard,
   getCardById,
   getAllCards,
   updateCard,
   deleteCard,
+  uploadImage,
 };
