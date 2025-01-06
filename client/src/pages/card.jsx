@@ -225,13 +225,13 @@ function Card() {
 
 
       {/* Card Display */}
-      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto"
-        style={{
-          backgroundColor: card.cardBackgroundColor,
-        }}
+      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto bg-gray-100"
+        // style={{
+        //   backgroundColor: card.cardBackgroundColor,
+        // }}
       >
 
-        <div className={`grid ${isEditing ? 'grid-cols-1 gap-6' : 'grid-cols-3'} items-center`}>
+        <div className={`grid ${isEditing ? 'grid-cols-1 gap-2' : 'grid-cols-3'} items-center`}>
           {/* Picture Section */}
           <div className="">
             {isEditing ? (
@@ -259,28 +259,28 @@ function Card() {
             <div className="mt-3 w-full ">
               {isEditing ? (
                 <>
-                  <div className="flex gap-2 ">
-                    <h2 className="text-gray-700 font-bold ">FirstName:</h2>
+                  <div className="flex gap-2 mt-1 items-center">
+                    <h2 className="text-gray-700 font-bold w-28">FirstName:</h2>
                     <input
                       type="text"
                       name="cardFirstName"
                       value={card.cardFirstName}
                       placeholder="First Name"
                       onChange={handleInputChange}
-                      className="text-gray-700 "
-                      maxLength={25}
+                      className="text-gray-700 flex-1 border border-gray-300 rounded px-2 py-1"
+                      maxLength={22}
                     />
                   </div>
-                  <div className="flex gap-2 mt-1">
-                    <h2 className="text-gray-700 font-bold">LastName:</h2>
+                  <div className="flex gap-2 mt-1 items-center">
+                    <h2 className="text-gray-700 font-bold w-28">LastName:</h2>
                     <input
                       type="text"
                       name="cardLastName"
                       value={card.cardLastName}
                       placeholder="Last Name"
                       onChange={handleInputChange}
-                      className="text-gray-800"
-                      maxLength={25}
+                      className="text-gray-800 flex-1 border border-gray-300 rounded px-2 py-1"
+                      maxLength={22}
 
                     />
                   </div>
@@ -326,7 +326,7 @@ function Card() {
         {/* Social Links */}
         <div className={`${isEditing ? 'mt-3' : 'mt-8'}`}>
         <div className={`mb-2 ${isEditing ? 'flex gap-2' : ' text-center'}`}>
-            <h3 className="text-gray-700 font-bold ">Social Links</h3>
+            <h3 className="text-gray-700 font-bold text-xl">Social Links</h3>
             <button
               className={`${isEditing ? 'bg-green-900 rounded-lg text-white w-9 h-7' : 'hidden'}`}
               onClick={() => addNewLink("cardSocialLinks")}>Add</button>
@@ -397,7 +397,7 @@ function Card() {
         {/* Project Links */}
         <div className={`${isEditing ? 'mt-3' : 'mt-8'}`}>
           <div className={`mb-2 ${isEditing ? 'flex gap-2' : ' text-center'}`}>
-            <h3 className="text-gray-700 font-bold ">Project Links</h3>
+            <h3 className="text-gray-700 font-bold text-xl">Project Links</h3>
             <button className={`${isEditing ? 'bg-green-900 rounded-lg text-white w-9 h-7' : 'hidden'}`}
               onClick={() => addNewLink("cardProjectLinks")}>Add</button>
           </div>
