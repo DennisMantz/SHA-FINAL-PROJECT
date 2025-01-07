@@ -208,10 +208,15 @@ function Card() {
 
   return (
     <div className="bg-gray-200 min-h-screen">
-      <Navbar />
+      {localStorage.getItem("token") && (
+        <Navbar />
+      )}
 
       <div className="flex">
-        <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 m-1 hover:scale-110 rounded-lg sm:absolute" onClick={() => navigate("/businessCards")}>Back</button>
+        {localStorage.getItem("token") && (
+          <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 m-1 hover:scale-110 rounded-lg sm:absolute" onClick={() => navigate("/businessCards")}>
+            Back</button>
+        )}
 
         {/* CardTittle */}
         <div className="mx-auto w-[400px] mt-3 text-center">
@@ -512,22 +517,6 @@ function Card() {
           )}
         </div>
 
-        {/* Background Color Picker */}
-        {/* <div>
-          {isEditing ? (
-            <>
-              <label htmlFor="backgroundColor">Background Color:</label>
-              <input
-                type="color"
-                id="backgroundColor"
-                name="cardBackgroundColor"
-                value={card.cardBackgroundColor}
-                onChange={handleInputChange}
-              />
-            </>
-          ) : null}
-        </div> */}
-
         {/* email */}
         <div className="mt-5">
           {isEditing ? (
@@ -565,6 +554,7 @@ function Card() {
               Cancel
             </button>
           </>
+
         ) : localStorage.getItem("token") ? ( // Check if token exists
           <button
             className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
