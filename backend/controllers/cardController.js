@@ -25,19 +25,32 @@ const addCard = async (req, res) => {
 };
 
 let getCardById = async (req, res) => {
-    try {
-      const card = await Card.findById(req.params.id);
-      if (!card) {
-        return res.status(404).send({ msg: "Card not found" });
-      }
-      res.status(200).json(card);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({ msg: "Error fetching card by ID", error });
+  try {
+    const cardId = req.params.id;
+    const card = await Card.findById(cardId);
+    if (!card) {
+      return res.status(404).send({ msg: "Card not found" });
     }
-  };
+    // Only return public data
+    const publicCardData = {
+      cardTitle: card.cardTitle,
+      cardFirstName: card.cardFirstName,
+      cardLastName: card.cardLastName,
+      cardPicture: card.cardPicture,
+      cardAbout: card.cardAbout,
+      cardSocialLinks: card.cardSocialLinks,
+      cardProjectLinks: card.cardProjectLinks,
+      cardBackgroundColor: card.cardBackgroundColor,
+    };
 
-  // Fetch all cards for the authenticated user
+    res.status(200).json(card);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Error fetching card by ID", error });
+  }
+};
+
+// Fetch all cards for the authenticated user
 const getAllCards = async (req, res) => {
   try {
     const userId = req.user._id; // Authenticated user ID
@@ -52,9 +65,8 @@ const getAllCards = async (req, res) => {
     });
   }
 };
-  
-  
-  // Update a card by ID
+
+// Update a card by ID
 const updateCard = async (req, res) => {
   try {
     const updatedCard = await Card.findByIdAndUpdate(req.params.id, req.body, {
@@ -117,7 +129,7 @@ const uploadImage = async (req, res) => {
     // Get the transformed circular image URL
     const transformedUrl = transformCircleImage(result.public_id);
 
-     // Update card in MongoDB with Cloudinary URL
+    // Update card in MongoDB with Cloudinary URL
     const updatedCard = await Card.findByIdAndUpdate(
       req.params.id,
       { cardPicture: transformedUrl },
@@ -130,10 +142,11 @@ const uploadImage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error uploading image:", error.message);
-    res.status(500).json({ msg: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Internal server error", error: error.message });
   }
 };
-
 
 module.exports = {
   addCard,

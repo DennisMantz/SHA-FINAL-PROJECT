@@ -21,22 +21,76 @@ function Card() {
     cardBackgroundColor: "#FFFFFF",
   });
 
+  const [textColor, setTextColor] = useState("#000000"); // State for dynamic text color
   const [isEditing, setIsEditing] = useState(false);
   const [originalCard, setOriginalCard] = useState(null); // Stores the original data for cancellation
+
+
+
+  // Utility function to calculate luminance and set appropriate text color
+  const calculateTextColor = (backgroundColor) => {
+    let r, g, b;
+
+    if (backgroundColor.startsWith("#")) {
+      // Handle #RRGGBB format
+      r = parseInt(backgroundColor.slice(1, 3), 16);
+      g = parseInt(backgroundColor.slice(3, 5), 16);
+      b = parseInt(backgroundColor.slice(5, 7), 16);
+    } else if (backgroundColor.startsWith("rgb")) {
+      // Handle rgb(...) format
+      const rgbValues = backgroundColor
+        .match(/\d+/g) // Extract numbers
+        .map((num) => parseInt(num, 10)); // Convert to integers
+      [r, g, b] = rgbValues;
+    } else {
+      console.error("Invalid color format:", backgroundColor);
+      return "#000000"; // Default to black if invalid format
+    }
+
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    const textColor = luminance > 128 ? "#000000" : "#FFFFFF";
+
+    // console.log({
+    //   backgroundColor,
+    //   r,
+    //   g,
+    //   b,
+    //   luminance,
+    //   returnedTextColor: textColor,
+    // }); // Debugging
+
+    return textColor;
+  };
+
+  const adjustColorBrightness = (color) => {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+
+    // Calculate luminance
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    // Decide adjustment amount: lighter colors get darker (-20), darker colors get lighter (+20)
+    const amount = luminance > 128 ? -20 : 20;
+
+    // Adjust brightness
+    const adjustedR = Math.min(255, Math.max(0, r + amount));
+    const adjustedG = Math.min(255, Math.max(0, g + amount));
+    const adjustedB = Math.min(255, Math.max(0, b + amount));
+
+    return `rgb(${adjustedR}, ${adjustedG}, ${adjustedB})`;
+  };
 
   // Fetch card data 
   useEffect(() => {
     const fetchCardData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/cards/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // CHECK!!! if necessary
-          },
-        });
+        const response = await axios.get(`http://localhost:8080/cards/${id}`);
         setCard(response.data);
       } catch (error) {
         console.error("Error fetching card data:", error);
         alert("Error loading card data. Please try again.");
+        navigate("/");
       }
     };
 
@@ -44,26 +98,6 @@ function Card() {
   }, [id]);
 
 
-  // //check how to reduce code here
-  // const {
-  //   cardTitle = "",
-  //   cardFirstName = "",
-  //   cardLastName = "",
-  //   cardPicture = "",
-  //   cardAbout = "",
-  //   cardSocialLinks = [],
-  //   cardProjectLinks = [],
-  //   cardBackgroundColor = "#FFFFFF",
-  // } = card;
-
-
-  // //check how to reduce code here
-  // // const handleBackgroundColorChange = (e) => {
-  // //   setCard((prevCard) => ({
-  // //     ...prevCard,
-  // //     cardBackgroundColor: e.target.value,
-  // //   }));
-  // // };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,10 +134,14 @@ function Card() {
   };
 
   const toggleEditMode = () => {
-    setOriginalCard({ ...card }); // Store the original card data
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to edit this card.");
+      return;
+    }
+    setOriginalCard({ ...card });  // Store the original card data
     setIsEditing(!isEditing);
   };
-
 
   // Save changes
   const handleSave = async () => {
@@ -130,33 +168,6 @@ function Card() {
     setIsEditing(false);
   };
 
-
-  // const handleImageUpload = async (file) => {
-  //   const formData = new FormData();
-  //   formData.append("image", file);
-
-  //   try {
-  //     const response = await axios.post(
-  //       `http://localhost:8080/cards/${id}/upload-image`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           "Content-Type": "multipart/form-data",
-  //         },
-  //       }
-  //     );
-
-  //     const updatedCard = response.data.card;
-
-  //     // Update the card state
-  //     setCard((prevCard) => ({ ...prevCard, cardPicture: updatedCard.cardPicture }));
-  //     alert("Image uploaded successfully!");
-  //   } catch (error) {
-  //     console.error("Error uploading image:", error.message);
-  //     alert("Image upload failed.");
-  //   }
-  // };
 
   const handleImageUpload = async (file) => {
     const reader = new FileReader();
@@ -206,7 +217,11 @@ function Card() {
         <div className="mx-auto w-[400px] mt-3 text-center">
           {isEditing ? (
             <>
-              <label htmlFor="cardTitle" className="mr-2 text-gray-700 font-bold">
+              <label
+                htmlFor="cardTitle"
+                className="mr-2 font-bold text-black"
+              // style={{ color: textColor }} // Label text color dynamically set
+              >
                 Card Name:
               </label>
               <input
@@ -216,38 +231,59 @@ function Card() {
                 value={card.cardTitle}
                 placeholder="Name this Card"
                 onChange={handleInputChange}
+                className="border border-gray-300 rounded px-2 py-1 text-black" // Set consistent text color
               />
             </>
           ) : null}
         </div>
       </div>
 
-
-
       {/* Card Display */}
-      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto bg-gray-100"
-        // style={{
-        //   backgroundColor: card.cardBackgroundColor,
-        // }}
+      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto mt-209 "
+        style={{
+          backgroundColor: card.cardBackgroundColor,
+          color: textColor, // Dynamically applied text color
+        }}
       >
 
-        <div className={`grid ${isEditing ? 'grid-cols-1 gap-2' : 'grid-cols-3'} items-center`}>
+        {isEditing ? (
+          <div className="text-center mb-4">
+            <label htmlFor="backgroundColor" className=" font-bold mr-2" style={{ color: textColor }}>
+              Background Color:
+            </label>
+            <input
+              type="color"
+              id="backgroundColor"
+              name="cardBackgroundColor"
+              value={card.cardBackgroundColor}
+              onChange={(e) => {
+                handleInputChange(e); // Update the card background color
+                setTextColor(calculateTextColor(e.target.value)); // Recalculate text color dynamically
+              }}
+              className="rounded border border-gray-300 p-1"
+
+            />
+          </div>
+        ) : null}
+
+
+        <div>
           {/* Picture Section */}
-          <div className="">
+          <div className="flex justify-center ">
             {isEditing ? (
               <>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageUpload(e.target.files[0])}
-                  className="text-gray-800 "
+                  className=""
                 />
               </>
             ) : (
               <img
                 src={card.cardPicture}
                 alt="Profile"
-                className="w-[200px] rounded-full object-cover"
+                className="w-[200px] rounded-full object-cover "
               />
             )}
           </div>
@@ -260,33 +296,33 @@ function Card() {
               {isEditing ? (
                 <>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2 className="text-gray-700 font-bold w-28">FirstName:</h2>
+                    <h2 className=" font-bold w-28">FirstName:</h2>
                     <input
                       type="text"
                       name="cardFirstName"
                       value={card.cardFirstName}
                       placeholder="First Name"
                       onChange={handleInputChange}
-                      className="text-gray-700 flex-1 border border-gray-300 rounded px-2 py-1"
+                      className=" flex-1 border border-gray-300 rounded px-2 py-1 text-black"
                       maxLength={22}
                     />
                   </div>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2 className="text-gray-700 font-bold w-28">LastName:</h2>
+                    <h2 className=" font-bold w-28">LastName:</h2>
                     <input
                       type="text"
                       name="cardLastName"
                       value={card.cardLastName}
                       placeholder="Last Name"
                       onChange={handleInputChange}
-                      className="text-gray-800 flex-1 border border-gray-300 rounded px-2 py-1"
+                      className=" flex-1 border border-gray-300 rounded px-2 py-1 text-black"
                       maxLength={22}
 
                     />
                   </div>
                 </>
               ) : (
-                <h2 className="flex pl-3 text-gray-900 font-bold">
+                <h2 className="flex w-full justify-center  font-bold">
                   {card.cardFirstName} {card.cardLastName}
                 </h2>
               )}
@@ -294,12 +330,12 @@ function Card() {
             {/* About Me Section */}
             {isEditing ? (
               <div className="w-full">
-                <h2 className="underline text-gray-700 font-bold">About me</h2>
+                <h2 className="underline  font-bold">About me</h2>
                 <textarea
                   name="cardAbout"
                   value={card.cardAbout}
                   onChange={handleInputChange}
-                  className="w-full h-[80px] text-gray-800 border "
+                  className="w-full h-[80px]  border text-black border-gray-300 rounded"
                 />
               </div>
             ) : (
@@ -324,16 +360,15 @@ function Card() {
 
 
         {/* Social Links */}
-        <div className={`${isEditing ? 'mt-3' : 'mt-8'}`}>
-        <div className={`mb-2 ${isEditing ? 'flex gap-2' : ' text-center'}`}>
-            <h3 className="text-gray-700 font-bold text-xl">Social Links</h3>
-            <button
-              className={`${isEditing ? 'bg-green-900 rounded-lg text-white w-9 h-7' : 'hidden'}`}
-              onClick={() => addNewLink("cardSocialLinks")}>Add</button>
-          </div>
-
+        <div className="mt-3">
           {isEditing ? (
             <>
+              <div className="mb-2 flex gap-2" >
+                <h3 className="font-bold text-xl">Social Links</h3>
+                <button
+                  className="bg-green-900 rounded-lg text-white w-9 h-7"
+                  onClick={() => addNewLink("cardSocialLinks")}>Add</button>
+              </div>
               {card.cardSocialLinks.map((social, index) => (
                 <div className="flex items-center gap-[2px] mb-1" key={index}>
                   <button
@@ -346,7 +381,7 @@ function Card() {
                     onChange={(e) =>
                       handleLinkChange(index, "cardSocialLinks", "title", e.target.value)
                     }
-                    className=" text-gray-800 border border-gray-300 rounded-md p-1 w-36"
+                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
                   <input
                     type="text"
@@ -355,28 +390,35 @@ function Card() {
                     onChange={(e) =>
                       handleLinkChange(index, "cardSocialLinks", "link", e.target.value)
                     }
-                    className=" text-gray-800 border border-gray-300 rounded-md p-1 w-36"
+                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
                 </div>
               ))}
 
             </>
           ) : card.cardSocialLinks.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 max-w-[300px] mx-auto">
               {card.cardSocialLinks.map((social, index) => {
+
+                const circleBgColor = adjustColorBrightness(card.cardBackgroundColor); // Slightly darker shade
+                const circleTextColor = calculateTextColor(circleBgColor); // Ensure readable text
+                // console.log("Adjusted Background Color:", circleBgColor);
                 const validLink = social.link.startsWith("http")
                   ? social.link
-                  : `https://${social.link}`; 
+                  : `https://${social.link}`;
                 return (
                   <a
                     key={index}
                     href={validLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mx-auto flex items-center justify-center text-white bg-gray-800 rounded-full w-20 h-20 text-center hover:scale-105"
+                    className="mx-auto flex items-center justify-center border-2  rounded-full w-20 h-20 text-center hover:scale-105"
                     style={{
-                      fontSize: `${Math.max(14, 48 / (social.title.length || 1))}px`, // Adjust font size dynamically
-                      lineHeight: "1.2", // Maintain good vertical spacing
+                      backgroundColor: circleBgColor,
+                      borderColor: `${circleTextColor} `,
+                      color: `${circleTextColor} `, // Dynamically calculated text color
+                      fontSize: `${Math.max(14, 48 / (social.title.length || 1))}px`,
+                      lineHeight: "1.2",
                     }}
                     title={social.link} // Tooltip for the full title
                   >
@@ -396,14 +438,16 @@ function Card() {
         {/*  */}
         {/* Project Links */}
         <div className={`${isEditing ? 'mt-3' : 'mt-8'}`}>
-          <div className={`mb-2 ${isEditing ? 'flex gap-2' : ' text-center'}`}>
-            <h3 className="text-gray-700 font-bold text-xl">Project Links</h3>
-            <button className={`${isEditing ? 'bg-green-900 rounded-lg text-white w-9 h-7' : 'hidden'}`}
-              onClick={() => addNewLink("cardProjectLinks")}>Add</button>
-          </div>
+
 
           {isEditing ? (
             <>
+              <div className="mb-2 flex gap-2" >
+                <h3 className="font-bold text-xl">Project Links</h3>
+                <button
+                  className="bg-green-900 rounded-lg text-white w-9 h-7"
+                  onClick={() => addNewLink("cardProjectLinks")}>Add</button>
+              </div>
               {card.cardProjectLinks.map((project, index) => (
                 <div className="flex  items-center gap-[2px] mb-1" key={index}>
                   <button
@@ -416,7 +460,7 @@ function Card() {
                     onChange={(e) =>
                       handleLinkChange(index, "cardProjectLinks", "title", e.target.value)
                     }
-                    className=" text-gray-800 border border-gray-300 rounded-md p-1 w-36"
+                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
                   <input
                     type="text"
@@ -425,7 +469,7 @@ function Card() {
                     onChange={(e) =>
                       handleLinkChange(index, "cardProjectLinks", "link", e.target.value)
                     }
-                    className=" text-gray-800 border border-gray-300 rounded-md p-1 w-36"
+                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
 
                 </div>
@@ -433,30 +477,35 @@ function Card() {
 
             </>
           ) : card.cardProjectLinks.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-            {card.cardProjectLinks.map((project, index) => {
-              const validLink = project.link.startsWith("http")
-                ? project.link
-                : `https://${project.link}`; // Ensure the link has a valid protocol
-              return (
-                <a
-                  key={index}
-                  href={validLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className=" mx-auto flex items-center justify-center text-white bg-gray-800 rounded-full w-20 h-20 text-center hover:scale-105"
-                  style={{
-                    fontSize: `${Math.max(14, 48 / (project.title.length || 1))}px`, // Adjust font size dynamically
-                    lineHeight: "1.2", // Maintain good vertical spacing
-                  }}
-                  title={project.title} // Tooltip for the full title
-                >
-                  {project.title.length > 9
-                    ? `${project.title.substring(0, 8)}...` // Truncate if too long
-                    : project.title}
-                </a>
-              );
-            })}
+            <div className="flex flex-wrap gap-3 max-w-[300px] mx-auto">
+              {card.cardProjectLinks.map((project, index) => {
+                const circleBgColor = adjustColorBrightness(card.cardBackgroundColor); // Slightly darker shade
+                const circleTextColor = calculateTextColor(circleBgColor); // Ensure readable text
+                const validLink = project.link.startsWith("http")
+                  ? project.link
+                  : `https://${project.link}`; // Ensure the link has a valid protocol
+                return (
+                  <a
+                    key={index}
+                    href={validLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=" mx-auto flex items-center justify-center border-2  rounded-full w-20 h-20 text-center hover:scale-105"
+                    style={{
+                      backgroundColor: circleBgColor,
+                      borderColor: `${circleTextColor} `,
+                      color: `${circleTextColor}`, // Dynamically calculated text color
+                      fontSize: `${Math.max(14, 48 / (project.title.length || 1))}px`,
+                      lineHeight: "1.2",
+                    }}
+                    title={project.title} // Tooltip for the full title
+                  >
+                    {project.title.length > 9
+                      ? `${project.title.substring(0, 8)}...` // Truncate if too long
+                      : project.title}
+                  </a>
+                );
+              })}
             </div>
           ) : (
             null
@@ -483,7 +532,7 @@ function Card() {
         <div className="mt-5">
           {isEditing ? (
             <>
-              <label htmlFor="cardEmail" className="mr-2 text-gray-700 font-bold">
+              <label htmlFor="cardEmail" className="mr-2  font-bold">
                 Email:
               </label>
               <input
@@ -493,10 +542,11 @@ function Card() {
                 value={card.cardEmail}
                 placeholder="Email"
                 onChange={handleInputChange}
+                className="text-black"
               />
             </>
           ) : (
-            <h2 className="text-gray-900 font-bold text-center">
+            <h2 className=" font-bold text-center">
               {card.cardEmail}
             </h2>
           )}
@@ -515,10 +565,29 @@ function Card() {
               Cancel
             </button>
           </>
-        ) : (
-          <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg" onClick={toggleEditMode}>Edit</button>
-        )}
+        ) : localStorage.getItem("token") ? ( // Check if token exists
+          <button
+            className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
+            onClick={toggleEditMode}>
+            Edit
+          </button>
+        ) : null} {/* Do not render the button if no token */}
       </div>
+      {!isEditing && (
+        <div className="text-center mt-4">
+          <button
+            className="text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg"
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href)
+                .then(() => alert("Card URL copied to clipboard!"))
+                .catch((err) => alert("Failed to copy the URL. Please try again."));
+            }}
+          >
+            Copy URL
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }

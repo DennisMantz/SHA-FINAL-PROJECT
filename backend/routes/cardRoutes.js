@@ -16,7 +16,7 @@ const {
 router.post("/", verifyToken, addCard);
 router.get("/", verifyToken, getAllCards);
 
-router.get("/:id", verifyToken, getCardById);
+router.get("/:id", getCardById); //share that without token
 router.delete("/:id", verifyToken, deleteCard);
 router.put("/:id", verifyToken, updateCard);
 router.post("/:id/upload-image", verifyToken, uploadImage);
