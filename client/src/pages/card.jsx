@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
@@ -25,7 +25,7 @@ function Card() {
   const [isEditing, setIsEditing] = useState(false);
   const [originalCard, setOriginalCard] = useState(null); // Stores the original data for cancellation
 
-
+ 
 
   // Utility function to calculate luminance and set appropriate text color
   const calculateTextColor = (backgroundColor) => {
@@ -81,6 +81,17 @@ function Card() {
     return `rgb(${adjustedR}, ${adjustedG}, ${adjustedB})`;
   };
 
+  // Global calculations for colors using useMemo
+ const circleBgColor = useMemo(
+  () => adjustColorBrightness(card.cardBackgroundColor), // Adjust brightness dynamically
+  [card.cardBackgroundColor] // Only recalculate if background color changes
+);
+
+const circleTextColor = useMemo(
+  () => calculateTextColor(circleBgColor), // Calculate text color based on adjusted background
+  [circleBgColor] // Only recalculate if adjusted background changes
+);
+
   // Fetch card data 
   useEffect(() => {
     const fetchCardData = async () => {
@@ -117,7 +128,12 @@ function Card() {
   };
   // Add a new link (social or project)
   const addNewLink = (type) => {
-    const newLink = { title: "", link: "" };
+    if (card[type].length >= 3) {
+      alert(`You can only add up to 3 links per category.`);
+      return; // Exit the function if the limit is reached
+    }
+  
+    const newLink = { title: "", link: "" }; // Template for new link
     setCard((prevCard) => ({
       ...prevCard,
       [type]: [...prevCard[type], newLink],
@@ -327,7 +343,11 @@ function Card() {
                   </div>
                 </>
               ) : (
-                <h2 className="flex w-full justify-center  font-bold">
+                <h2 
+                className="flex w-full justify-center  font-bold"
+                style={{
+                  color: `${circleTextColor} `
+                }}>
                   {card.cardFirstName} {card.cardLastName}
                 </h2>
               )}
@@ -345,7 +365,12 @@ function Card() {
               </div>
             ) : (
               <div className=" max-h-[100px] overflow-hidden hover:overflow-auto pl-3">
-                <p className="relative break-words whitespace-normal max-w-[300px]">
+                <p
+                 className="relative break-words whitespace-normal max-w-[300px]" 
+                 style={{
+                  color: `${circleTextColor} `
+                }}>
+                  
                   {showFullAbout
                     ? card.cardAbout
                     : `${card.cardAbout.substring(0, 100)}`}
@@ -405,8 +430,6 @@ function Card() {
             <div className="flex flex-wrap gap-3 max-w-[300px] mx-auto">
               {card.cardSocialLinks.map((social, index) => {
 
-                const circleBgColor = adjustColorBrightness(card.cardBackgroundColor); // Slightly darker shade
-                const circleTextColor = calculateTextColor(circleBgColor); // Ensure readable text
                 // console.log("Adjusted Background Color:", circleBgColor);
                 const validLink = social.link.startsWith("http")
                   ? social.link
@@ -484,8 +507,7 @@ function Card() {
           ) : card.cardProjectLinks.length > 0 ? (
             <div className="flex flex-wrap gap-3 max-w-[300px] mx-auto">
               {card.cardProjectLinks.map((project, index) => {
-                const circleBgColor = adjustColorBrightness(card.cardBackgroundColor); // Slightly darker shade
-                const circleTextColor = calculateTextColor(circleBgColor); // Ensure readable text
+            
                 const validLink = project.link.startsWith("http")
                   ? project.link
                   : `https://${project.link}`; // Ensure the link has a valid protocol
@@ -535,7 +557,10 @@ function Card() {
               />
             </>
           ) : (
-            <h2 className=" font-bold text-center">
+            <h2 className=" font-bold text-center"
+            style={{
+              color: `${circleTextColor} `
+            }}>
               {card.cardEmail}
             </h2>
           )}
