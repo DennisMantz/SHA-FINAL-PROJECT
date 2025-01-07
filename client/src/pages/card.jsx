@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { ToastContainer, toast } from 'react-toastify';
 
 function Card() {
   const navigate = useNavigate();
@@ -95,12 +96,13 @@ const circleTextColor = useMemo(
   // Fetch card data 
   useEffect(() => {
     const fetchCardData = async () => {
+      
       try {
         const response = await axios.get(`http://localhost:8080/cards/${id}`);
         setCard(response.data);
       } catch (error) {
         console.error("Error fetching card data:", error);
-        alert("Error loading card data. Please try again.");
+        toast.error("Error loading card data. Please try again.");
         navigate("/");
       }
     };
@@ -129,7 +131,7 @@ const circleTextColor = useMemo(
   // Add a new link (social or project)
   const addNewLink = (type) => {
     if (card[type].length >= 3) {
-      alert(`You can only add up to 3 links per category.`);
+      toast(`You can only add up to 3 links per category.`);
       return; // Exit the function if the limit is reached
     }
   
@@ -152,7 +154,7 @@ const circleTextColor = useMemo(
   const toggleEditMode = () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("You must be logged in to edit this card.");
+      toast("You must be logged in to edit this card.");
       return;
     }
     setOriginalCard({ ...card });  // Store the original card data
@@ -175,7 +177,7 @@ const circleTextColor = useMemo(
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving card data:", error);
-      alert("There was an error updating the card.");
+      toast("There was an error updating the card.");
     }
   };
 
@@ -210,14 +212,14 @@ const circleTextColor = useMemo(
         // alert("Image uploaded successfully!");
       } catch (error) {
         console.error("Error uploading image:", error.message);
-        alert("Image upload failed.");
+        toast("Image upload failed.");
       }
     };
 
     if (file) {
       reader.readAsDataURL(file); // Convert file to Base64
     } else {
-      alert("Please select a file to upload.");
+      toast("Please select a file to upload.");
     }
   };
 
@@ -228,36 +230,40 @@ const circleTextColor = useMemo(
         <Navbar />
       )}
 
-      <div className="flex">
-        {localStorage.getItem("token") && (
-          <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 m-1 hover:scale-110 rounded-lg sm:absolute" onClick={() => navigate("/Cards")}>
-            Back</button>
-        )}
-
-        {/* CardTittle */}
-        <div className="mx-auto w-[400px] mt-3 text-center">
-          {isEditing ? (
-            <>
-              <label
-                htmlFor="cardTitle"
-                className="mr-2 font-bold text-black"
-              // style={{ color: textColor }} // Label text color dynamically set
-              >
-                Card Name:
-              </label>
-              <input
-                id="cardTitle"
-                type="text"
-                name="cardTitle"
-                value={card.cardTitle}
-                placeholder="Name this Card"
-                onChange={handleInputChange}
-                className="border border-gray-300 rounded px-2 py-1 text-black" // Set consistent text color
-              />
-            </>
-          ) : null}
-        </div>
-      </div>
+<div className="flex max-w-[400px] mx-auto">
+  {/* Card Title */}
+  <div className={`mt-3  ${isEditing ? 'mx-auto' : 'mx-0'}`}>
+    {/*  className={`flex flex-col items-center col-span-2 ${isEditing ? 'space-y-2' : 'space-y-1'}`}> */}
+    {isEditing ? (
+      <>
+        <label
+          htmlFor="cardTitle"
+          className="mr-2 font-bold text-black"
+        >
+          Card Name:
+        </label>
+        <input
+          id="cardTitle"
+          type="text"
+          name="cardTitle"
+          value={card.cardTitle}
+          placeholder="Only you can see this"
+          onChange={handleInputChange}
+          className="border border-gray-300 rounded px-2 py-1 text-black"
+        />
+      </>
+    ) : (
+      localStorage.getItem("token") && (
+        <button
+          className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900  hover:scale-110 rounded-lg"
+          onClick={() => navigate("/Cards")}
+        >
+          Back
+        </button>
+      )
+    )}
+  </div>
+</div>
 
       {/* Card Display */}
       <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto mt-209 "
@@ -269,7 +275,9 @@ const circleTextColor = useMemo(
 
         {isEditing ? (
           <div className="text-center mb-4">
-            <label htmlFor="backgroundColor" className=" font-bold mr-2" style={{ color: textColor }}>
+            <label htmlFor="backgroundColor" className=" font-bold mr-2" style={{
+                      color: `${circleTextColor} `
+                    }}>
               Background Color:
             </label>
             <input
@@ -294,10 +302,13 @@ const circleTextColor = useMemo(
             {isEditing ? (
               <>
                 <input
-                  type="file"
+                  type="file" //default behavior of HTML -> Choose File : No file chosen
                   accept="image/*"
                   onChange={(e) => handleImageUpload(e.target.files[0])}
                   className=""
+                  style={{
+                    color: `${circleTextColor} `
+                  }}
                 />
               </>
             ) : (
@@ -317,7 +328,11 @@ const circleTextColor = useMemo(
               {isEditing ? (
                 <>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2 className=" font-bold w-28">FirstName:</h2>
+                    <h2  
+                    className=" font-bold w-28" 
+                    style={{
+                      color: `${circleTextColor} `
+                    }}>FirstName:</h2>
                     <input
                       type="text"
                       name="cardFirstName"
@@ -329,7 +344,11 @@ const circleTextColor = useMemo(
                     />
                   </div>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2 className=" font-bold w-28">LastName:</h2>
+                    <h2 
+                    className=" font-bold w-28" 
+                    style={{
+                      color: `${circleTextColor} `
+                    }}>LastName:</h2>
                     <input
                       type="text"
                       name="cardLastName"
@@ -355,7 +374,11 @@ const circleTextColor = useMemo(
             {/* About Me Section */}
             {isEditing ? (
               <div className="w-full">
-                <h2 className="underline  font-bold">About me</h2>
+                <h2 
+                className="underline  font-bold"
+                style={{
+                  color: `${circleTextColor} `
+                }}>About me</h2>
                 <textarea
                   name="cardAbout"
                   value={card.cardAbout}
@@ -394,7 +417,11 @@ const circleTextColor = useMemo(
           {isEditing ? (
             <>
               <div className="mb-2 flex gap-2" >
-                <h3 className="font-bold text-xl">Social Links</h3>
+                <h3 
+                className="font-bold text-xl"
+                style={{
+                  color: `${circleTextColor} `
+                }}>Social Links</h3>
                 <button
                   className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={() => addNewLink("cardSocialLinks")}>Add</button>
@@ -446,7 +473,7 @@ const circleTextColor = useMemo(
                       backgroundColor: circleBgColor,
                       borderColor: `${circleTextColor} `,
                       color: `${circleTextColor} `, // Dynamically calculated text color
-                      fontSize: `${Math.max(14, 48 / (social.title.length || 1))}px`,
+                      fontSize: 14,
                       lineHeight: "1.2",
                     }}
                     title={social.link} // Tooltip for the full title
@@ -472,7 +499,11 @@ const circleTextColor = useMemo(
           {isEditing ? (
             <>
               <div className="mb-2 flex gap-2" >
-                <h3 className="font-bold text-xl">Project Links</h3>
+                <h3 
+                className="font-bold text-xl"
+                style={{
+                  color: `${circleTextColor} `
+                }}>Project Links</h3>
                 <button
                   className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={() => addNewLink("cardProjectLinks")}>Add</button>
@@ -524,7 +555,7 @@ const circleTextColor = useMemo(
                       backgroundColor: circleBgColor,
                       borderColor: `${circleTextColor} `,
                       color: `${circleTextColor}`, // Dynamically calculated text color
-                      fontSize: `${Math.max(14, 48 / (project.title.length || 1))}px`,
+                      fontSize: 14,
                       lineHeight: "1.2",
                     }}
                     title={project.title} // Tooltip for the full title
@@ -545,7 +576,10 @@ const circleTextColor = useMemo(
         <div className="mt-5">
           {isEditing ? (
             <>
-              <label htmlFor="cardEmail" className="mr-2  font-bold">
+              <label htmlFor="cardEmail" className="mr-2  font-bold"
+              style={{
+                color: `${circleTextColor} `
+              }}>
                 Email:
               </label>
               <input
@@ -582,29 +616,48 @@ const circleTextColor = useMemo(
             </button>
           </>
 
-        ) : localStorage.getItem("token") ? ( // Check if token exists
-          <button
-            className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
-            onClick={toggleEditMode}>
-            Edit
-          </button>
-        ) : null} {/* Do not render the button if no token */}
+        ) : (
+          <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
+            {localStorage.getItem("token") && (
+              <button
+                className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
+                onClick={toggleEditMode}
+              >
+                Edit
+              </button>
+            )}
+            <button
+              className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${
+                localStorage.getItem("token") ? "" : "mx-auto"
+              }`} // Center when Edit button is not present
+              onClick={() => {
+                toast.dismiss(); // Dismiss any existing toasts
+                navigator.clipboard.writeText(window.location.href)
+                  .then(() => {
+                    toast("Card URL copied to clipboard!"); // Display toast notification
+                  })
+                  .catch(() => {
+                    toast.error("Failed to copy the URL. Please try again."); // Display error toast
+                  });
+              }}
+            >
+              Copy URL
+            </button>
+          </div>
+        )}
       </div>
-      {!isEditing && (
-        <div className="text-center mt-4">
-          <button
-            className="text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg"
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href)
-                .then(() => alert("Card URL copied to clipboard!"))
-                .catch((err) => alert("Failed to copy the URL. Please try again."));
-            }}
-          >
-            Copy URL
-          </button>
-        </div>
-      )}
 
+<ToastContainer
+        position="top-center" // Set notification position globally
+        autoClose={1500} // Auto close in 3 seconds
+        hideProgressBar={false} // Show progress bar
+        newestOnTop={false} // Notifications will stack oldest-to-newest
+        closeOnClick // Close on click
+        rtl={false} // Left-to-right layout
+        pauseOnFocusLoss={false} // Pause when browser loses focus
+        draggable={false} // Allow dragging the notification
+        pauseOnHover={false} // Pause timer on hover
+      />
     </div>
   );
 }

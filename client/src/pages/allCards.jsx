@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
 
+
 function AllCards() {
     const [cards, setCards] = useState([]); // Holds the user's cards
     const [canAddCard, setCanAddCard] = useState(true); // Determines if the "Add Card" button is visible
@@ -103,30 +104,33 @@ function AllCards() {
                 {cards.map((card) => (
                     <div
                         key={card._id}
-                        className="border-2 border-gray-800 m-3 p-3 cursor-pointer w-[200px] text-center  mx-auto  h-[180px] flex flex-col justify-between "
+                        className="border-2 border-gray-800 m-3 p-3 cursor-pointer w-[200px] text-center  mx-auto  h-[220px] flex flex-col justify-between "
                     >
                         <div onClick={() => navigate(`/shareBro/${card._id}`)} // Use the card's unique ID
                             className="hover:scale-110">
-                                 <img
+                            <img
                                 src={
                                     card.cardPicture
                                 }
                                 alt="Profile"
                                 className="w-[50px] h-[50px] rounded-full object-cover mx-auto"
-                                
+
                             />
                             <p className="text-sm">Card Name:</p>
                             <h2 className="text-lg font-bold">
                                 {card.cardTitle || ""}
                             </h2>
-                           
+
                         </div>
-                        <button className="mt-10 text-red-600 hover:scale-110"
+                        <button
+                            className="mt-10 text-red-600 hover:scale-110"
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent navigation on delete
-                                handleDeleteCard(card._id);
+                                const confirmDelete = window.confirm("Are you sure you want to delete this card?");
+                                if (confirmDelete) {
+                                    handleDeleteCard(card._id); // Proceed with delete if confirmed
+                                }
                             }}
-
                         >
                             Delete Card
                         </button>

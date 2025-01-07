@@ -28,7 +28,7 @@ function Homepage() {
                 
 
                 <section className="w-[200px] mx-auto text-center">
-                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" onClick={() => navigate("/Cards")}>MedBro</button>
+                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" >MedBro</button>
                     
                     <p className="text-md mb-2 font-bold text-gray-900">STEP2</p>
                     <img className=" mx-auto h-[300px] " src="/assets/MedBro.PNG" alt="logo" />
@@ -37,7 +37,7 @@ function Homepage() {
 
                
                 <section className="w-[200px] mx-auto text-center">
-                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" onClick={() => navigate("/Cards")}>DocBro</button>
+                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" >DocBro</button>
                     
                     <p className="text-md mb-2 font-bold text-gray-900">STEP3</p>
                     <img className=" mx-auto h-[300px] " src="/assets/DocBro.PNG" alt="logo" />
