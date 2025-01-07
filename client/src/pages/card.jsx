@@ -171,7 +171,7 @@ const circleTextColor = useMemo(
           },
         }
       );
-      alert("Card updated successfully!");
+      // alert("Card updated successfully!");
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving card data:", error);
@@ -207,7 +207,7 @@ const circleTextColor = useMemo(
 
         // Update the card state
         setCard((prevCard) => ({ ...prevCard, cardPicture: updatedCard.cardPicture }));
-        alert("Image uploaded successfully!");
+        // alert("Image uploaded successfully!");
       } catch (error) {
         console.error("Error uploading image:", error.message);
         alert("Image upload failed.");
@@ -230,7 +230,7 @@ const circleTextColor = useMemo(
 
       <div className="flex">
         {localStorage.getItem("token") && (
-          <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 m-1 hover:scale-110 rounded-lg sm:absolute" onClick={() => navigate("/businessCards")}>
+          <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 m-1 hover:scale-110 rounded-lg sm:absolute" onClick={() => navigate("/Cards")}>
             Back</button>
         )}
 
@@ -396,14 +396,12 @@ const circleTextColor = useMemo(
               <div className="mb-2 flex gap-2" >
                 <h3 className="font-bold text-xl">Social Links</h3>
                 <button
-                  className="bg-green-900 rounded-lg text-white w-9 h-7"
+                  className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={() => addNewLink("cardSocialLinks")}>Add</button>
               </div>
               {card.cardSocialLinks.map((social, index) => (
                 <div className="flex items-center gap-[2px] mb-1" key={index}>
-                  <button
-                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
-                    onClick={() => removeLink(index, "cardSocialLinks")}>X</button>
+                  
                   <input
                     type="text"
                     placeholder="Title"
@@ -422,6 +420,9 @@ const circleTextColor = useMemo(
                     }
                     className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
+                  <button
+                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
+                    onClick={() => removeLink(index, "cardSocialLinks")}>X</button>
                 </div>
               ))}
 
@@ -473,14 +474,12 @@ const circleTextColor = useMemo(
               <div className="mb-2 flex gap-2" >
                 <h3 className="font-bold text-xl">Project Links</h3>
                 <button
-                  className="bg-green-900 rounded-lg text-white w-9 h-7"
+                  className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={() => addNewLink("cardProjectLinks")}>Add</button>
               </div>
               {card.cardProjectLinks.map((project, index) => (
                 <div className="flex  items-center gap-[2px] mb-1" key={index}>
-                  <button
-                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
-                    onClick={() => removeLink(index, "cardProjectLinks")}>X</button>
+                  
                   <input
                     type="text"
                     placeholder="Title"
@@ -499,6 +498,9 @@ const circleTextColor = useMemo(
                     }
                     className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
+                  <button
+                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
+                    onClick={() => removeLink(index, "cardProjectLinks")}>X</button>
 
                 </div>
               ))}

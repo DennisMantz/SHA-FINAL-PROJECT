@@ -105,7 +105,7 @@ function AllCards() {
                         key={card._id}
                         className="border-2 border-gray-800 m-3 p-3 cursor-pointer w-[200px] text-center  mx-auto  h-[180px] flex flex-col justify-between "
                     >
-                        <div onClick={() => navigate(`/businessCard/${card._id}`)} // Use the card's unique ID
+                        <div onClick={() => navigate(`/shareBro/${card._id}`)} // Use the card's unique ID
                             className="hover:scale-110">
                                  <img
                                 src={

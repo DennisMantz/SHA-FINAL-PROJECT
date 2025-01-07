@@ -31,17 +31,16 @@ let getCardById = async (req, res) => {
     if (!card) {
       return res.status(404).send({ msg: "Card not found" });
     }
-    // Only return public data
-    const publicCardData = {
-      cardTitle: card.cardTitle,
-      cardFirstName: card.cardFirstName,
-      cardLastName: card.cardLastName,
-      cardPicture: card.cardPicture,
-      cardAbout: card.cardAbout,
-      cardSocialLinks: card.cardSocialLinks,
-      cardProjectLinks: card.cardProjectLinks,
-      cardBackgroundColor: card.cardBackgroundColor,
-    };
+    // // Only return public data
+    // const publicCardData = {
+    //   cardFirstName: card.cardFirstName,
+    //   cardLastName: card.cardLastName,
+    //   cardPicture: card.cardPicture,
+    //   cardAbout: card.cardAbout,
+    //   cardSocialLinks: card.cardSocialLinks,
+    //   cardProjectLinks: card.cardProjectLinks,
+    //   cardBackgroundColor: card.cardBackgroundColor,
+    // };
 
     res.status(200).json(card);
   } catch (error) {

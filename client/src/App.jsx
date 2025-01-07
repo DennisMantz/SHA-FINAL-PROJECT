@@ -17,8 +17,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Homepage />} />
-          <Route path="/businessCard/:id" element={<Card/>}/>
-          <Route path="/businessCards" element={<AllCards />} /> {/* List all cards */}
+          <Route path="/shareBro/:id" element={<Card/>}/>
+          <Route path="/Cards" element={<AllCards />} /> {/* List all cards */}
         </Routes>
       </BrowserRouter>
     </div>
