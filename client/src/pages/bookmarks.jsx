@@ -10,7 +10,6 @@ function BookmarkManager() {
     const [editingBookmarkId, setEditingBookmarkId] = useState(null);
 
     // Fetch bookmarks
-    // Fetch bookmarks
     useEffect(() => {
         const fetchBookmarks = async () => {
             try {
@@ -51,7 +50,6 @@ function BookmarkManager() {
             const formattedLinks = newBookmark.links.map((link) => ({ url: link }));
 
             if (isEditing) {
-                // Update existing bookmark
                 const { data } = await axios.put(
                     `http://localhost:8080/api/bookmarks/${editingBookmarkId}`,
                     { ...newBookmark, links: formattedLinks },
@@ -68,7 +66,6 @@ function BookmarkManager() {
                     )
                 );
             } else {
-                // Add new bookmark
                 const { data } = await axios.post(
                     "http://localhost:8080/api/bookmarks",
                     { ...newBookmark, links: formattedLinks },
@@ -112,20 +109,21 @@ function BookmarkManager() {
                 ? link.url
                 : `https://${link.url}`
         );
-    
+
         const linkListHTML = formattedLinks
             .map((url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`)
             .join("<br>");
-    
+
         Swal.fire({
             title: "Open Links",
             html: `<div style="text-align: left;">${linkListHTML}</div>`,
             icon: "info",
             confirmButtonText: "Close",
-            width: 600, // Optional: Adjust width for better display
+            width: 600,
             showCloseButton: true,
         });
     };
+
     // Open edit form
     const openEditForm = (bookmark) => {
         setNewBookmark({
@@ -138,22 +136,19 @@ function BookmarkManager() {
     };
 
     return (
-        <div className="max-w-[800px] mx-auto flex ">
-            {/* <h1 className="text-2xl font-bold mb-4">Bookmark Manager</h1> */}
-
+        <div className="max-w-[800px] mx-auto flex relative">
             {/* Add Bookmark Button */}
-            <div className="mr-2">
-                <button
-                    className="w-[50px] h-[30px] mx-auto mt-4 bg-gray-800 text-white rounded"
-                    onClick={() => {
-                        setNewBookmark({ title: "", links: [""] });
-                        setShowForm(true);
-                        setIsEditing(false);
-                    }}
-                >
-                    Add
-                </button>
-            </div>
+            <button
+                className="w-[50px] h-[30px] mx-auto mt-4 bg-gray-800 text-white rounded absolute "
+                onClick={() => {
+                    setNewBookmark({ title: "", links: [""] });
+                    setShowForm(true);
+                    setIsEditing(false);
+                }}
+            >
+                Add
+            </button>
+
             {/* Bookmark Modal */}
             {showForm && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -206,34 +201,38 @@ function BookmarkManager() {
 
             {/* Display Bookmarks */}
             <div className="grid grid-cols-5 mx-auto max-w-[600px] gap-3">
-                {bookmarks.map((bookmark) => (
-                    <div
-                        key={bookmark._id}
-                        className=" bg-gray-800 text-white p-4 rounded"
-                    >
-                        <button
-                            className=""
-                            onClick={() => openLinks(bookmark.links)}
-                        >
-                            {bookmark.title}
-                        </button>
-                        <div className="grid ">
-                            <button
-                                className=" bg-yellow-500 text-black rounded"
-                                onClick={() => openEditForm(bookmark)}
-                            >
-                                Edit
-                            </button>
-                            <button
-                                className=" bg-red-600 text-white rounded"
-                                onClick={() => deleteBookmark(bookmark._id)}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                ))}
+    {bookmarks.map((bookmark) => (
+        <div
+            key={bookmark._id}
+            className="bg-gray-800 text-white w-[100px] h-[100px] p-2 rounded relative group"
+        >
+            {/* Title button */}
+            <button
+                className="hover:scale-105 w-full text-left"
+                onClick={() => openLinks(bookmark.links)}
+            >
+                {bookmark.title}
+            </button>
+
+            {/* Edit and Delete buttons (shown on hover, positioned outside) */}
+            <div className="hidden group-hover:flex flex-col absolute top-0 left-[-60px] space-y-2">
+                <button
+                    className="p-1 bg-yellow-500 text-black rounded hover:scale-105"
+                    onClick={() => openEditForm(bookmark)}
+                >
+                    Edit
+                </button>
+                <button
+                    className="p-1 bg-red-600 text-white rounded hover:scale-105"
+                    onClick={() => deleteBookmark(bookmark._id)}
+                >
+                    Delete
+                </button>
             </div>
+        </div>
+    ))}
+</div>
+
         </div>
     );
 }
