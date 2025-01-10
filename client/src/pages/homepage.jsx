@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import BookmarkManager from "./bookmarks";
 
 function Homepage() {
     const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Homepage() {
         <div className="h-full w-full bg-gray-200">
             <Navbar />
             <section>
-                <p className="mx-auto mt-1 flex justify-center rounded border-2 border-gray-800 w-1/3">STEP4--Bookmark Controller </p>
+               <BookmarkManager/>
             </section>
             {/* SHARE BRO */}
             <main className="grid grid-cols-1  grid-rows-6 sm:grid-rows-3  mt-10 items-center  gap-5">
