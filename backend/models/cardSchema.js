@@ -27,7 +27,7 @@ const cardSchema = new mongoose.Schema({
     default: [], // Ensures the field is an empty array by default
   },
   cardCreator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  cardBackgroundColor: { type: String, default: "#FFFFFF" }, // Default to white
+  cardBackgroundColor: { type: String, default: "#EDEDED" }, // Default to white
 },
 { timestamps: true });
 const Card = mongoose.model("Card", cardSchema);

@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { ToastContainer, toast } from 'react-toastify';
+import Swal from "sweetalert2";
 
 function Card() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation(); // Access location state
   const [showFullAbout, setShowFullAbout] = useState(false);
 
   // State for card data
@@ -19,14 +21,14 @@ function Card() {
     cardEmail: "",
     cardSocialLinks: [],
     cardProjectLinks: [],
-    cardBackgroundColor: "#FFFFFF",
+    cardBackgroundColor: "#EDEDED",
   });
 
   const [textColor, setTextColor] = useState("#000000"); // State for dynamic text color
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(location.state?.isEditing || false);
   const [originalCard, setOriginalCard] = useState(null); // Stores the original data for cancellation
 
- 
+
 
   // Utility function to calculate luminance and set appropriate text color
   const calculateTextColor = (backgroundColor) => {
@@ -83,20 +85,20 @@ function Card() {
   };
 
   // Global calculations for colors using useMemo
- const circleBgColor = useMemo(
-  () => adjustColorBrightness(card.cardBackgroundColor), // Adjust brightness dynamically
-  [card.cardBackgroundColor] // Only recalculate if background color changes
-);
+  const circleBgColor = useMemo(
+    () => adjustColorBrightness(card.cardBackgroundColor), // Adjust brightness dynamically
+    [card.cardBackgroundColor] // Only recalculate if background color changes
+  );
 
-const circleTextColor = useMemo(
-  () => calculateTextColor(circleBgColor), // Calculate text color based on adjusted background
-  [circleBgColor] // Only recalculate if adjusted background changes
-);
+  const circleTextColor = useMemo(
+    () => calculateTextColor(circleBgColor), // Calculate text color based on adjusted background
+    [circleBgColor] // Only recalculate if adjusted background changes
+  );
 
   // Fetch card data 
   useEffect(() => {
     const fetchCardData = async () => {
-      
+
       try {
         const response = await axios.get(`http://localhost:8080/cards/${id}`);
         setCard(response.data);
@@ -108,7 +110,7 @@ const circleTextColor = useMemo(
     };
 
     fetchCardData();
-  }, [id]);
+  }, [id, navigate]);
 
 
 
@@ -134,7 +136,7 @@ const circleTextColor = useMemo(
       toast(`You can only add up to 3 links per category.`);
       return; // Exit the function if the limit is reached
     }
-  
+
     const newLink = { title: "", link: "" }; // Template for new link
     setCard((prevCard) => ({
       ...prevCard,
@@ -161,29 +163,79 @@ const circleTextColor = useMemo(
     setIsEditing(!isEditing);
   };
 
+  const validateLinks = (links, type) => {
+    let isValid = true;
+    const updatedLinks = links.map((link, index) => {
+      if (!link.title.trim()) {
+        isValid = false;
+        toast.error(`Please provide a title for the link`);
+        return { ...link, error: true }; // Add an error flag
+      }
+      return { ...link, error: false }; // Reset error flag if valid
+    });
+    setCard((prevCard) => ({
+      ...prevCard,
+      [type === "Primary" ? "cardSocialLinks" : "cardProjectLinks"]: updatedLinks,
+    }));
+    return isValid;
+  };
+
   // Save changes
   const handleSave = async () => {
-    try {
-      await axios.put(
-        `http://localhost:8080/cards/${id}`,
-        { ...card },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      // alert("Card updated successfully!");
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving card data:", error);
-      toast("There was an error updating the card.");
+    // Validate primary and secondary links
+    if (!validateLinks(card.cardSocialLinks, "Primary") || !validateLinks(card.cardProjectLinks, "Secondary")) {
+      return; // Stop the save operation if validation fails
     }
+
+    // Proceed with save if validation passes
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to save your changes?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, save it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(
+            `http://localhost:8080/cards/${id}`,
+            { ...card },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+          // alert("Card updated successfully!");
+          setIsEditing(false);
+        } catch (error) {
+          console.error("Error saving card data:", error);
+          toast("There was an error updating the card.");
+        }
+      }
+    });
   };
 
   const handleCancel = () => {
-    setCard(originalCard); // Revert to the original card data
-    setIsEditing(false);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Any unsaved changes will be lost. Do you want to cancel?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, cancel it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsEditing(false); // Exit editing mode
+        if (originalCard) {
+          setCard(originalCard); // Revert to original card data
+        }
+        // Swal.fire("Cancelled", "Your changes have been discarded.", "info");
+      }
+    });
   };
 
 
@@ -230,43 +282,46 @@ const circleTextColor = useMemo(
         <Navbar />
       )}
 
-<div className="flex max-w-[400px] mx-auto">
-  {/* Card Title */}
-  <div className={`mt-3  ${isEditing ? 'mx-auto' : 'mx-0'}`}>
-    {/*  className={`flex flex-col items-center col-span-2 ${isEditing ? 'space-y-2' : 'space-y-1'}`}> */}
-    {isEditing ? (
-      <>
-        <label
-          htmlFor="cardTitle"
-          className="mr-2 font-bold text-black"
-        >
-          Card Name:
-        </label>
-        <input
-          id="cardTitle"
-          type="text"
-          name="cardTitle"
-          value={card.cardTitle}
-          placeholder="Only you can see this"
-          onChange={handleInputChange}
-          className="border border-gray-300 rounded px-2 py-1 text-black"
-        />
-      </>
-    ) : (
-      localStorage.getItem("token") && (
-        <button
-          className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900  hover:scale-110 rounded-lg"
-          onClick={() => navigate("/Cards")}
-        >
-          Back
-        </button>
-      )
-    )}
-  </div>
-</div>
+      <div className="flex justify-end max-w-[480px] mx-auto relative">
+        {/* Card Title */}
+        <div className={`mt-3 ${isEditing ? 'mx-auto' : 'justify-end'}`}>
+          {/*  className={`flex flex-col items-center col-span-2 ${isEditing ? 'space-y-2' : 'space-y-1'}`}> */}
+          {isEditing ? (
+            <>
+              <label
+                htmlFor="cardTitle"
+                className="mr-2 font-bold text-black"
+              >
+                Card Name:
+              </label>
+              <input
+                id="cardTitle"
+                type="text"
+                name="cardTitle"
+                value={card.cardTitle}
+                placeholder="Only you can see this"
+                onChange={handleInputChange}
+                className="border border-gray-300 rounded px-2 py-1 text-black"
+                maxLength={16}
+              />
+            </>
+          ) : (
+            localStorage.getItem("token") && (
+              <div className="">
+                <button
+                  className=" hover:scale-110  absolute left-[429px] top-[6px]"
+                  onClick={() => navigate("/Cards")}
+                >
+                  <img src="/assets/circle-xmark-solid-sm-back.svg" alt="Back" className="w-8 h-8" />
+                </button>
+              </div>
+            )
+          )}
+        </div>
+      </div>
 
       {/* Card Display */}
-      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto mt-209 "
+      <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto "
         style={{
           backgroundColor: card.cardBackgroundColor,
           color: textColor, // Dynamically applied text color
@@ -276,8 +331,8 @@ const circleTextColor = useMemo(
         {isEditing ? (
           <div className="text-center mb-4">
             <label htmlFor="backgroundColor" className=" font-bold mr-2" style={{
-                      color: `${circleTextColor} `
-                    }}>
+              color: `${circleTextColor} `
+            }}>
               Background Color:
             </label>
             <input
@@ -315,7 +370,7 @@ const circleTextColor = useMemo(
               <img
                 src={card.cardPicture}
                 alt="Profile"
-                className="w-[200px] rounded-full object-cover "
+                className="w-[200px] rounded-full object-cover  "
               />
             )}
           </div>
@@ -328,11 +383,11 @@ const circleTextColor = useMemo(
               {isEditing ? (
                 <>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2  
-                    className=" font-bold w-28" 
-                    style={{
-                      color: `${circleTextColor} `
-                    }}>FirstName:</h2>
+                    <h2
+                      className=" font-bold w-28"
+                      style={{
+                        color: `${circleTextColor} `
+                      }}>FirstName:</h2>
                     <input
                       type="text"
                       name="cardFirstName"
@@ -344,11 +399,11 @@ const circleTextColor = useMemo(
                     />
                   </div>
                   <div className="flex gap-2 mt-1 items-center">
-                    <h2 
-                    className=" font-bold w-28" 
-                    style={{
-                      color: `${circleTextColor} `
-                    }}>LastName:</h2>
+                    <h2
+                      className=" font-bold w-28"
+                      style={{
+                        color: `${circleTextColor} `
+                      }}>LastName:</h2>
                     <input
                       type="text"
                       name="cardLastName"
@@ -362,11 +417,11 @@ const circleTextColor = useMemo(
                   </div>
                 </>
               ) : (
-                <h2 
-                className="flex w-full justify-center  font-bold"
-                style={{
-                  color: `${circleTextColor} `
-                }}>
+                <h2
+                  className="flex w-full justify-center  font-bold"
+                  style={{
+                    color: `${circleTextColor} `
+                  }}>
                   {card.cardFirstName} {card.cardLastName}
                 </h2>
               )}
@@ -374,11 +429,11 @@ const circleTextColor = useMemo(
             {/* About Me Section */}
             {isEditing ? (
               <div className="w-full">
-                <h2 
-                className="underline  font-bold"
-                style={{
-                  color: `${circleTextColor} `
-                }}>About me</h2>
+                <h2
+                  className="underline  font-bold"
+                  style={{
+                    color: `${circleTextColor} `
+                  }}>About me</h2>
                 <textarea
                   name="cardAbout"
                   value={card.cardAbout}
@@ -389,11 +444,11 @@ const circleTextColor = useMemo(
             ) : (
               <div className=" max-h-[100px] overflow-hidden hover:overflow-auto pl-3">
                 <p
-                 className="relative break-words whitespace-normal max-w-[300px]" 
-                 style={{
-                  color: `${circleTextColor} `
-                }}>
-                  
+                  className="relative break-words whitespace-normal max-w-[300px]"
+                  style={{
+                    color: `${circleTextColor} `
+                  }}>
+
                   {showFullAbout
                     ? card.cardAbout
                     : `${card.cardAbout.substring(0, 100)}`}
@@ -417,28 +472,35 @@ const circleTextColor = useMemo(
           {isEditing ? (
             <>
               <div className="mb-2 flex gap-2" >
-                <h3 
-                className="font-bold text-xl"
-                style={{
-                  color: `${circleTextColor} `
-                }}>Social Links</h3>
+                <h3
+                  title="ex. Social links"
+                  className="font-bold text-xl cursor-help"
+                  style={{
+                    color: `${circleTextColor} `
+                  }}>Primary Links</h3>
                 <button
-                  className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
-                  onClick={() => addNewLink("cardSocialLinks")}>Add</button>
+                  title={`${card.cardSocialLinks.length >= 3 ? "3 links /section" : "Add Link"}`}
+                  onClick={() => addNewLink("cardSocialLinks")}
+                  className={`rounded-full bg-white w-7 h-7 ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
+                </button>
+
               </div>
               {card.cardSocialLinks.map((social, index) => (
                 <div className="flex items-center gap-[2px] mb-1" key={index}>
-                  
+
                   <input
+                    title="Title: required"
                     type="text"
                     placeholder="Title"
                     value={social.title}
-                    onChange={(e) =>
-                      handleLinkChange(index, "cardSocialLinks", "title", e.target.value)
-                    }
-                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
+                    onChange={(e) => handleLinkChange(index, "cardSocialLinks", "title", e.target.value)}
+
+                    className={`border border-gray-300 rounded-md p-1 w-36 text-black ${social.error ? "border-red-500" : ""}`}
                   />
                   <input
+                    title="Link"
                     type="text"
                     placeholder="example.com"
                     value={social.link}
@@ -447,10 +509,16 @@ const circleTextColor = useMemo(
                     }
                     className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
+
                   <button
-                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
-                    onClick={() => removeLink(index, "cardSocialLinks")}>X</button>
+                    title="Remove Link"
+                    onClick={() => removeLink(index, "cardSocialLinks")}
+                    className=" rounded-full bg-white "
+                  >
+                    <img src="/assets/ban-solid-sm.svg" alt="Remove Link" className="w-6 h-6" />
+                  </button>
                 </div>
+
               ))}
 
             </>
@@ -463,16 +531,28 @@ const circleTextColor = useMemo(
                   ? social.link
                   : `https://${social.link}`;
                 return (
-                  <a
+                  <button
                     key={index}
-                    href={validLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mx-auto flex items-center justify-center border-2  rounded-full w-20 h-20 text-center hover:scale-105"
+                    onClick={() => {
+                      Swal.fire({
+                        title: `Go to ${social.link}?`,
+                        text: "You will be redirected to the external link.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, proceed",
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          window.open(validLink, "_blank", "noopener,noreferrer");
+                        }
+                      });
+                    }}
+                    className="mx-auto flex items-center justify-center border-2 rounded-full w-20 h-20 text-center hover:scale-105"
                     style={{
                       backgroundColor: circleBgColor,
-                      borderColor: `${circleTextColor} `,
-                      color: `${circleTextColor} `, // Dynamically calculated text color
+                      borderColor: `${circleTextColor}`,
+                      color: `${circleTextColor}`, // Dynamically calculated text color
                       fontSize: 14,
                       lineHeight: "1.2",
                     }}
@@ -481,7 +561,7 @@ const circleTextColor = useMemo(
                     {social.title.length > 9
                       ? `${social.title.substring(0, 8)}...` // Truncate if too long
                       : social.title}
-                  </a>
+                  </button>
                 );
               })}
             </div>
@@ -491,7 +571,7 @@ const circleTextColor = useMemo(
         </div>
 
 
-        {/*  */}
+
         {/* Project Links */}
         <div className={`${isEditing ? 'mt-3' : 'mt-8'}`}>
 
@@ -499,28 +579,38 @@ const circleTextColor = useMemo(
           {isEditing ? (
             <>
               <div className="mb-2 flex gap-2" >
-                <h3 
-                className="font-bold text-xl"
-                style={{
-                  color: `${circleTextColor} `
-                }}>Project Links</h3>
+                <h3
+                  title="ex. Project links"
+                  className="font-bold text-xl cursor-help"
+                  style={{
+                    color: `${circleTextColor} `
+
+                  }}>Secondary Links</h3>
+
                 <button
-                  className={`bg-green-900 rounded-lg text-white w-9 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
-                  onClick={() => addNewLink("cardProjectLinks")}>Add</button>
+                  title={`${card.cardProjectLinks.length >= 3 ? "3 links /section" : "Add Link"}`}
+                  onClick={() => addNewLink("cardProjectLinks")}
+                  className={`rounded-full bg-white w-7 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
+                </button>
+
               </div>
               {card.cardProjectLinks.map((project, index) => (
                 <div className="flex  items-center gap-[2px] mb-1" key={index}>
-                  
                   <input
+                    title="Title: required"
                     type="text"
                     placeholder="Title"
                     value={project.title}
                     onChange={(e) =>
                       handleLinkChange(index, "cardProjectLinks", "title", e.target.value)
                     }
-                    className="  border border-gray-300 rounded-md p-1 w-36 text-black"
+                    className={`border border-gray-300 rounded-md p-1 w-36 text-black ${project.error ? "border-red-500" : ""}`}
                   />
+
                   <input
+                    title="Link"
                     type="text"
                     placeholder="example.com"
                     value={project.link}
@@ -530,8 +620,13 @@ const circleTextColor = useMemo(
                     className="  border border-gray-300 rounded-md p-1 w-36 text-black"
                   />
                   <button
-                    className="bg-gradient-to-r from-red-800 to-red-900 text-white w-6 h-6 rounded-full"
-                    onClick={() => removeLink(index, "cardProjectLinks")}>X</button>
+                    title="Remove Link"
+                    onClick={() => removeLink(index, "cardProjectLinks")}
+                    className=" rounded-full bg-white"
+                  >
+                    <img src="/assets/ban-solid-sm.svg" alt="Remove Link" className="w-6 h-6" />
+                  </button>
+
 
                 </div>
               ))}
@@ -540,30 +635,42 @@ const circleTextColor = useMemo(
           ) : card.cardProjectLinks.length > 0 ? (
             <div className="flex flex-wrap gap-3 max-w-[300px] mx-auto">
               {card.cardProjectLinks.map((project, index) => {
-            
+
                 const validLink = project.link.startsWith("http")
                   ? project.link
                   : `https://${project.link}`; // Ensure the link has a valid protocol
                 return (
-                  <a
-                    key={index}
-                    href={validLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className=" mx-auto flex items-center justify-center border-2  rounded-full w-20 h-20 text-center hover:scale-105"
-                    style={{
-                      backgroundColor: circleBgColor,
-                      borderColor: `${circleTextColor} `,
-                      color: `${circleTextColor}`, // Dynamically calculated text color
-                      fontSize: 14,
-                      lineHeight: "1.2",
-                    }}
-                    title={project.title} // Tooltip for the full title
-                  >
-                    {project.title.length > 9
-                      ? `${project.title.substring(0, 8)}...` // Truncate if too long
-                      : project.title}
-                  </a>
+                  <button
+                  key={index}
+                  onClick={() => {
+                    Swal.fire({
+                      title: `Go to ${project.link}?`,
+                      text: "You will be redirected to the external link.",
+                      icon: "warning",
+                      showCancelButton: true,
+                      confirmButtonColor: "#3085d6",
+                      cancelButtonColor: "#d33",
+                      confirmButtonText: "Yes, proceed",
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        window.open(validLink, "_blank", "noopener,noreferrer");
+                      }
+                    });
+                  }}
+                  className="mx-auto flex items-center justify-center border-2 rounded-full w-20 h-20 text-center hover:scale-105"
+                  style={{
+                    backgroundColor: circleBgColor,
+                    borderColor: `${circleTextColor}`,
+                    color: `${circleTextColor}`, // Dynamically calculated text color
+                    fontSize: 14,
+                    lineHeight: "1.2",
+                  }}
+                  title={project.link} // Tooltip for the full title
+                >
+                  {project.title.length > 9
+                    ? `${project.title.substring(0, 8)}...` // Truncate if too long
+                    : project.title}
+                </button>
                 );
               })}
             </div>
@@ -577,9 +684,9 @@ const circleTextColor = useMemo(
           {isEditing ? (
             <>
               <label htmlFor="cardEmail" className="mr-2  font-bold"
-              style={{
-                color: `${circleTextColor} `
-              }}>
+                style={{
+                  color: `${circleTextColor} `
+                }}>
                 Email:
               </label>
               <input
@@ -587,16 +694,16 @@ const circleTextColor = useMemo(
                 type="email"
                 name="cardEmail"
                 value={card.cardEmail}
-                placeholder="Email"
+                placeholder="Email Address"
                 onChange={handleInputChange}
                 className="text-black"
               />
             </>
           ) : (
             <h2 className=" font-bold text-center"
-            style={{
-              color: `${circleTextColor} `
-            }}>
+              style={{
+                color: `${circleTextColor} `
+              }}>
               {card.cardEmail}
             </h2>
           )}
@@ -627,27 +734,37 @@ const circleTextColor = useMemo(
               </button>
             )}
             <button
-              className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${
-                localStorage.getItem("token") ? "" : "mx-auto"
-              }`} // Center when Edit button is not present
-              onClick={() => {
-                toast.dismiss(); // Dismiss any existing toasts
-                navigator.clipboard.writeText(window.location.href)
-                  .then(() => {
-                    toast("Card URL copied to clipboard!"); // Display toast notification
-                  })
-                  .catch(() => {
-                    toast.error("Failed to copy the URL. Please try again."); // Display error toast
-                  });
-              }}
-            >
-              Copy URL
-            </button>
+  className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
+    }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
+  onClick={() => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        Swal.fire({
+          title: "Copied!",
+          text: "Card URL has been copied to the clipboard.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      })
+      .catch(() => {
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to copy the URL. Please try again.",
+          icon: "error",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      });
+  }}
+>
+  Copy URL
+</button>
           </div>
         )}
       </div>
 
-<ToastContainer
+      <ToastContainer
         position="top-center" // Set notification position globally
         autoClose={1500} // Auto close in 3 seconds
         hideProgressBar={false} // Show progress bar

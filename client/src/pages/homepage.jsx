@@ -9,46 +9,48 @@ function Homepage() {
 
 
     return (
-        <div className="h-full w-full bg-[rgba(201,211,212,0.16)]">
+        <div className="h-full w-full bg-gray-200">
             <Navbar />
             <section>
                 <p className="mx-auto mt-1 flex justify-center rounded border-2 border-gray-800 w-1/3">STEP4--Bookmark Controller </p>
             </section>
+            {/* SHARE BRO */}
+            <main className="grid grid-cols-1  grid-rows-6 sm:grid-rows-3  mt-10 items-center  gap-5">
 
-            <main className="grid grid-rows-3 sm:grid-cols-3 mt-10  ">
+                <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
+                    <div className="grid  justify-center items-center ">
+                        <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" onClick={() => navigate("/Cards")}>ShareBro</button>
 
-                <section className="w-[200px] mx-auto text-center">
-                    
-                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" onClick={() => navigate("/Cards")}>ShareBro</button>
-                    
-                    <p className="text-md mb-2 font-bold text-gray-900">Create and share personalized cards to share your socials, apply for jobs, or promote your business!</p>
-                    <img className=" mx-auto h-[300px] " src="/assets/CardSNIP.PNG" alt="logo" />
-                    
-                </section>
-                
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">-Share your socials<br></br>-Promote your business<br></br>-Showcase your projects<br></br>-Create CV style cards for every job application<br></br> All in one place!" </p>
+                    </div>
+                    <img className=" mx-auto h-[450px] " src="/assets/CardSNIP1.PNG" alt="logo" />
 
-                <section className="w-[200px] mx-auto text-center">
-                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" >MedBro</button>
-                    
-                    <p className="text-md mb-2 font-bold text-gray-900">STEP2</p>
-                    <img className=" mx-auto h-[300px] " src="/assets/MedBro.PNG" alt="logo" />
-                    
                 </section>
 
-               
-                <section className="w-[200px] mx-auto text-center">
-                    <button className="  w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105 bg-gray-800 mb-3" >DocBro</button>
-                    
-                    <p className="text-md mb-2 font-bold text-gray-900">STEP3</p>
-                    <img className=" mx-auto h-[300px] " src="/assets/DocBro.PNG" alt="logo" />
-                    
+
+                <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
+                    <div className="grid  justify-center items-center ">
+                        <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >MedBro</button>
+
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">Under construction</p>
+                        <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
+                        </div>
+                    <img className=" mx-auto h-[450px] " src="/assets/MedBro1.PNG" alt="logo" />
+
                 </section>
 
-               
+
+                <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
+                    <div className="grid  justify-center items-center ">
+                        <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >DocBro</button>
+
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">Under construction</p>
+                        <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
+                        </div>
+                    <img className=" mx-auto h-[450px] " src="/assets/DocBro1.PNG" alt="logo" />
+
+                </section>
             </main>
-
-
-
         </div>
     );
 }
