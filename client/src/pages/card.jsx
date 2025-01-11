@@ -641,36 +641,36 @@ function Card() {
                   : `https://${project.link}`; // Ensure the link has a valid protocol
                 return (
                   <button
-                  key={index}
-                  onClick={() => {
-                    Swal.fire({
-                      title: `Go to ${project.link}?`,
-                      text: "You will be redirected to the external link.",
-                      icon: "warning",
-                      showCancelButton: true,
-                      confirmButtonColor: "#3085d6",
-                      cancelButtonColor: "#d33",
-                      confirmButtonText: "Yes, proceed",
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        window.open(validLink, "_blank", "noopener,noreferrer");
-                      }
-                    });
-                  }}
-                  className="mx-auto flex items-center justify-center border-2 rounded-full w-20 h-20 text-center hover:scale-105"
-                  style={{
-                    backgroundColor: circleBgColor,
-                    borderColor: `${circleTextColor}`,
-                    color: `${circleTextColor}`, // Dynamically calculated text color
-                    fontSize: 14,
-                    lineHeight: "1.2",
-                  }}
-                  title={project.link} // Tooltip for the full title
-                >
-                  {project.title.length > 9
-                    ? `${project.title.substring(0, 8)}...` // Truncate if too long
-                    : project.title}
-                </button>
+                    key={index}
+                    onClick={() => {
+                      Swal.fire({
+                        title: `Go to ${project.link}?`,
+                        text: "You will be redirected to the external link.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, proceed",
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          window.open(validLink, "_blank", "noopener,noreferrer");
+                        }
+                      });
+                    }}
+                    className="mx-auto flex items-center justify-center border-2 rounded-full w-20 h-20 text-center hover:scale-105"
+                    style={{
+                      backgroundColor: circleBgColor,
+                      borderColor: `${circleTextColor}`,
+                      color: `${circleTextColor}`, // Dynamically calculated text color
+                      fontSize: 14,
+                      lineHeight: "1.2",
+                    }}
+                    title={project.link} // Tooltip for the full title
+                  >
+                    {project.title.length > 9
+                      ? `${project.title.substring(0, 8)}...` // Truncate if too long
+                      : project.title}
+                  </button>
                 );
               })}
             </div>
@@ -734,32 +734,32 @@ function Card() {
               </button>
             )}
             <button
-  className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
-    }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
-  onClick={() => {
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => {
-        Swal.fire({
-          title: "Copied!",
-          text: "Card URL has been copied to the clipboard.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      })
-      .catch(() => {
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to copy the URL. Please try again.",
-          icon: "error",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      });
-  }}
->
-  Copy URL
-</button>
+              className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
+                }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href)
+                  .then(() => {
+                    Swal.fire({
+                      title: "Copied!",
+                      text: "Card URL has been copied to the clipboard.",
+                      icon: "success",
+                      timer: 1500,
+                      showConfirmButton: false,
+                    });
+                  })
+                  .catch(() => {
+                    Swal.fire({
+                      title: "Error!",
+                      text: "Failed to copy the URL. Please try again.",
+                      icon: "error",
+                      timer: 1500,
+                      showConfirmButton: false,
+                    });
+                  });
+              }}
+            >
+              Copy URL
+            </button>
           </div>
         )}
       </div>
