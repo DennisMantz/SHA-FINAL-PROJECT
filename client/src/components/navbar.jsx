@@ -33,36 +33,40 @@ function Navbar() {
           <div className="absolute top-[85px] right-[10px] bg-gray-800 opacity-95 rounded-lg  w-[180px] text-center  shadow-sm shadow-gray-100  border-gray-100 z-[9999]">
             
             <button
+            title="Home"
               onClick={() => {
                 setDropdownOpen(false);
-                navigate("/"); // Replace with actual path
+                navigate("/"); 
               }}
               className="block text-right mr-4 text-white py-2 px-4 font-bold w-full hover:scale-110  text-lg"
             >
               SyncBro 🏠
             </button>
             <button
+              title="Cards"
               onClick={() => {
                 setDropdownOpen(false);
-                navigate("/Cards"); // Replace with actual path
+                navigate("/Cards"); 
               }}
              className="block text-right mr-4 text-white py-2 px-4 hover:scale-110 font-bold w-full text-lg"
             >
               ShareBro 💳
             </button>
             <button
+            title="Coming soon"
               // onClick={() => {
               //   setDropdownOpen(false);
-              //   navigate("/"); // Replace with actual path
+              //   navigate("/"); 
               // }}
              className="block text-right mr-4 text-red-900 py-2 px-4  font-bold w-full text-lg cursor-not-allowed"
             >
               MedBro  🚧
             </button>
             <button
+              title="Coming soon"
               // onClick={() => {
               //   setDropdownOpen(false);
-              //   navigate("/"); // Replace with actual path
+              //   navigate("/"); 
               // }}
              className="block text-right mr-4 text-red-900 py-2 px-4  font-bold w-full text-lg cursor-not-allowed"
             >

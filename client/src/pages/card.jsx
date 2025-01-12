@@ -155,16 +155,29 @@ function Card() {
       [type]: [...prevCard[type], newLink],
     }));
   };
-  // Remove a link (social or project)
-  const removeLink = (index, type) => {
-    const updatedLinks = [...card[type]];
-    updatedLinks.splice(index, 1);
-    setCard((prevCard) => ({
-      ...prevCard,
-      [type]: updatedLinks,
-    }));
-  };
-
+  // Remove a link (social or project) with confirmation
+const removeLink = (index, type) => {
+  Swal.fire({
+      title: "Are you sure?",
+      text: "This action will permanently remove the link.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, remove it!",
+      cancelButtonText: "Cancel",
+  }).then((result) => {
+      if (result.isConfirmed) {
+          const updatedLinks = [...card[type]];
+          updatedLinks.splice(index, 1); // Remove the link at the specified index
+          setCard((prevCard) => ({
+              ...prevCard,
+              [type]: updatedLinks,
+          }));
+          Swal.fire("Removed!", "The link has been removed.", "success");
+      }
+  });
+};
   const toggleEditMode = () => {
     const token = localStorage.getItem("token");
     if (!token) {

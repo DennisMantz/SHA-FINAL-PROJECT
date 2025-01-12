@@ -116,19 +116,35 @@ function BookmarkManager() {
         }
     };
 
-    // Delete bookmark
-    const deleteBookmark = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8080/bookmarks/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            setBookmarks(bookmarks.filter((bookmark) => bookmark._id !== id));
-        } catch (error) {
-            console.error("Error deleting bookmark:", error);
+    // Delete bookmark with confirmation
+const deleteBookmark = async (id) => {
+    // Show confirmation modal
+    Swal.fire({
+        title: "Sure?",
+        text: "This action will permanently delete the bookmark group.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`http://localhost:8080/bookmarks/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                setBookmarks(bookmarks.filter((bookmark) => bookmark._id !== id));
+                Swal.fire("Deleted!", "The bookmark group has been deleted.", "success");
+            } catch (error) {
+                console.error("Error deleting bookmark:", error);
+                Swal.fire("Error", "There was an issue deleting the bookmark. Please try again.", "error");
+            }
         }
-    };
+    });
+};
 
     // Open links in new tabs
     const openLinks = (links) => {
