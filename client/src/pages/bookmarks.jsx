@@ -196,7 +196,7 @@ const deleteBookmark = async (id) => {
 
     return (
         <div className="">
-            <div className="max-w-[800px] mx-auto  grid grid-rows-1">
+            <div className="max-w-[1200px] mx-auto  grid grid-rows-1">
 
                 {/* Bookmark Modal */}
                 {showForm && (

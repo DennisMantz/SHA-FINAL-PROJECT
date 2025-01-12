@@ -10,14 +10,14 @@ function Homepage() {
 
 
     return (
-        <div className="h-full w-full bg-gray-200">
+        <div className=" h-full xl:h-screen w-full bg-gray-200">
             <Navbar />
             <section className=""> 
                 {/* hidden sm:block if you choose to hide on mobile since hover + bookmarks doesn't make sense */}
                <BookmarkManager/>
             </section>
             
-            <main className="grid grid-cols-1  grid-rows-6 sm:grid-rows-3   items-center  gap-5 mt-20">
+            <main className="grid grid-cols-1 xl:grid-cols-3  grid-rows-6 sm:grid-rows-3 xl:grid-rows-1   items-center  gap-5  mt-20">
 
                 <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
                     <div className="grid  justify-center items-center ">
@@ -32,10 +32,10 @@ function Homepage() {
 
                 <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
                     <div className="grid  justify-center items-center ">
-                        <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >MedBro</button>
+                        <button className="cursor-not-allowed mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white   bg-gray-800 mb-3" >MedBro</button>
 
                         <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
-                        <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
+                        <img className="xl:w-[220px] justify-self-end  " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
                     <img className=" mx-auto h-[450px] " src="/assets/MedBro1.PNG" alt="logo" />
 
@@ -44,10 +44,10 @@ function Homepage() {
 
                 <section className="max-w-[800px] grid sm:grid-cols-2 mx-auto  items-center">
                     <div className="grid  justify-center items-center ">
-                        <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >DocBro</button>
+                        <button className="cursor-not-allowed mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white   bg-gray-800 mb-3" >DocBro</button>
 
                         <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
-                        <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
+                        <img className=" xl:w-[220px]  justify-self-end" src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
                     <img className=" mx-auto h-[450px] " src="/assets/DocBro1.PNG" alt="logo" />
 

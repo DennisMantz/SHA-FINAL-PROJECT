@@ -7,14 +7,14 @@ function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="h-[15%] min-w-screen grid grid-cols-[1fr_auto_1fr] items-center bg-gray-800 text-white">
+    <header className="h-[15%]  xl:h-[20%] min-w-screen grid grid-cols-[1fr_auto_1fr] items-center bg-gray-800 text-white">
       {/* Left Placeholder (dropdown menu) */}
       <div></div>
 
       {/* Centered Logo */}
       <img
         onClick={() => navigate("/")}
-        className="h-[125px] cursor-pointer hover:scale-125 p-4"
+        className="h-[150px] xl:h-[180px] cursor-pointer hover:scale-110 p-4"
         src="/assets/syncBro-WHITE-ALIGNED.png"
         alt="logo"
       />
@@ -30,7 +30,7 @@ function Navbar() {
 
         {/* Dropdown Menu */}
         {dropdownOpen && (
-          <div className="absolute top-[85px] right-[10px] bg-gray-800 opacity-95 rounded-lg  w-[180px] text-center  shadow-sm shadow-gray-100  border-gray-100 z-[9999]">
+          <div className="absolute top-[110px] xl:top-[140px] right-[10px] bg-gray-800 opacity-95 rounded-lg  w-[180px] text-center  shadow-sm shadow-gray-100  border-gray-100 z-[9999]">
             
             <button
             title="Home"
