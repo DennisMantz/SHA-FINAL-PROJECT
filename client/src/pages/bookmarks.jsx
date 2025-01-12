@@ -186,7 +186,7 @@ function BookmarkManager() {
                 {showForm && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                         <div className="bg-gray-100 rounded p-6 w-[400px] shadow-lg">
-                            <h2 className="text-xl font-bold mb-4">
+                            <h2 className="text-xl font-bold mb-4 text-gray-900">
                                 {isEditing ? "Edit Bookmark Group" : "Add Bookmark Group"}
                             </h2>
                             <input
@@ -235,9 +235,9 @@ function BookmarkManager() {
 
                 {/* Display Bookmarks */}
                 <div className={`grid grid-cols-2 sm:grid-cols-5  mx-auto sm:max-w-[600px] gap-x-5 gap-y-3 mt-2 relative ${bookmarks.length > 4 || bookmarks.length === 0 ? 'sm:grid-cols-5' : 'sm:flex'} `}>
-                    <div className={` my-[26px] left-[-50px]  ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} absolute`}>
+                    <div className={`  left-[-50px]  ${ bookmarks.length < 6 ? 'w-auto  ' : 'w-[150px] my-[26px] left-[-110px]'} absolute`}>
                         <button
-                            title={`${bookmarks.length > 9 ? `10 = max, why not?` : `Add Bookmark`}`}
+                            title={`${bookmarks.length > 9 ? `10 = max, cause why not?` : `Add Bookmark`}`}
                             className={`flex justify-center mx-auto ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} ${bookmarks.length > 9 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                             onClick={() => {
                                 if (bookmarks.length >= 10) {

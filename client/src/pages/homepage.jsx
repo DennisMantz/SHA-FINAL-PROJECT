@@ -12,7 +12,8 @@ function Homepage() {
     return (
         <div className="h-full w-full bg-gray-200">
             <Navbar />
-            <section>
+            <section className=""> 
+                {/* hidden sm:block if you choose to hide on mobile since hover + bookmarks doesn't make sense */}
                <BookmarkManager/>
             </section>
             

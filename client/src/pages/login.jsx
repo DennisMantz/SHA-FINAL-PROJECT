@@ -9,142 +9,165 @@ function Login() {
         email: "",
         password: "",
     });
+    const [errors, setErrors] = useState({
+        email: "",
+        password: "",
+    });
 
-    function handleChange(e) {
-        try {
-            let { name, value } = e.target
-            setLoginData({ ...loginData, [name]: value })
-        } catch (error) {
-            console.log(`Error input update: ${error}`)
-        }
-    }
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setLoginData({ ...loginData, [name]: value });
+
+        // Reset validation messages on input change
+        setErrors({ ...errors, [name]: "" });
+    };
 
     const handleEnter = (e) => {
         if (e.key === "Enter") {
+            e.preventDefault();
             pressLogin();
         }
     };
 
-    function handleSubmit(e) {
+    const handleSubmit = (e) => {
         e.preventDefault();
         pressLogin();
-    }
+    };
+
+    const validateInputs = () => {
+        const newErrors = {};
+        if (!loginData.email) newErrors.email = "Email is required.";
+        if (!loginData.password) newErrors.password = "Password is required.";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const pressLogin = async () => {
-        if (isSubmitting) return; // Prevent double-submit
+        if (isSubmitting || !validateInputs()) return;
 
-        setIsSubmitting(true); // Disable button while submitting
-
+        setIsSubmitting(true);
         try {
             const { email, password } = loginData;
 
-            if (!email || !password) {
-                return alert("Both fields are required");
-            }
-
-            const response = await axios.post(
-                `http://localhost:8080/users/login`,
-                loginData
-            );
+            const response = await axios.post(`http://localhost:8080/users/login`, loginData);
             if (response.status === 200) {
                 const { token, msg } = response.data;
-                localStorage.setItem("token", token); // Store the token
+                localStorage.setItem("token", token);
                 alert(msg); // Display success message
                 navigate("/"); // Redirect to homepage
             }
         } catch (error) {
             if (error.response) {
-                // Handle backend error messages
                 const { msg } = error.response.data;
-                console.error("Server error:", msg);
                 alert(msg || "An unexpected server error occurred.");
             } else {
-                // Handle network or client-side errors
-                console.error("Unexpected error during login:", error);
                 alert("An unexpected error occurred. Please try again.");
             }
         } finally {
-            setIsSubmitting(false); // Re-enable button after request completion
+            setIsSubmitting(false);
         }
     };
 
-
     return (
-        <div className="grid grid-cols-3 w-full min-h-screen">
+        <div className="grid grid-cols-1 sm:grid-cols-3 w-full min-h-screen">
+            {/* Left Section */}
+            <div className="col-span-2 bg-gray-200 flex items-center justify-center ">
+                <form onSubmit={handleSubmit} className="w-full max-w-sm p-6 bg-white rounded shadow">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 
-            <div className="col-span-2 bg-gray-200">
-
-                <div className="flex flex-col justify-center items-center h-screen">
-                    {/* <h2 className="">Login</h2> */}
-                    <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label htmlFor="email" className="block text-gray-700 font-bold mb-1">
+                            Email Address
+                        </label>
                         <input
                             type="email"
                             name="email"
+                            id="email"
                             value={loginData.email}
-                            placeholder="Email"
+                            placeholder="Enter your email"
                             onChange={handleChange}
+                            onKeyDown={handleEnter}
+                            className={`w-full px-3 py-2 border rounded ${errors.email ? "border-red-500" : "border-gray-300"
+                                }`}
                             required
                             autoComplete="username"
-                            onKeyDown={handleEnter}
-                            className=""
                         />
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                    </div>
+
+                    <div className="mb-6">
+                        <label htmlFor="password" className="block text-gray-700 font-bold mb-1">
+                            Password
+                        </label>
                         <input
                             type="password"
                             name="password"
+                            id="password"
                             value={loginData.password}
-                            placeholder="Password"
+                            placeholder="Enter your password"
                             onChange={handleChange}
+                            onKeyDown={handleEnter}
+                            className={`w-full px-3 py-2 border rounded ${errors.password ? "border-red-500" : "border-gray-300"
+                                }`}
                             required
                             autoComplete="current-password"
-                            onKeyDown={handleEnter}
-                            className=""
                         />
-                        <button
-                            type="submit"
-                            className=""
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "Logging in..." : "Login"}
-                        </button>
-                    </form>
-                </div>
-                <p className="">
-                    Don't have an account?{" "}
-                    <button className=""
-                        onClick={() => navigate("/register")}>
-                        <span className=" ">
-                            Sign Up
-                        </span>
+                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                    </div>
+
+                    <button
+                        type="submit"
+                        className={`w-full py-2 text-white font-bold rounded ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-gray-800 hover:scale-105"
+                            }`}
+                        disabled={isSubmitting}
+                        aria-live="polite"
+                    >
+                        {isSubmitting ? "Logging in..." : "Login"}
                     </button>
-                </p>
-            </div>
+                    <p className="mt-4 text-gray-600 text-center">
+                        Don't have an account?{" "}
+                        <button
+                            className="text-gray-700 hover:text-gray-800 hover:scale-105"
+                            onClick={() => navigate("/register")}
+                        >
+                            Sign Up
+                        </button>
+                    </p>
+                </form>
 
-            <div className="col-span-1 bg-gray-800 w-full shadow-lg shadow-gray-900">
-                <div className="w-full mx-auto  flex justify-center mt-10">
-                    <img src="/assets/syncBro-WHITE-ALIGNED.png" alt="logo" className=" max-w-[300px] " />
-                </div>
-                <div className="w-full mx-auto  flex justify-center">
-                    <p className="text-white text-lg italic"> One app to rule them all! </p>
-                </div>
-
-                <div className="w-full mx-auto grid justify-center mt-[50px] max-w-[300px]">
-                    {/* <p className="text-white font-bold text-2xl">Features:</p> */}
-                    <p className="text-white text-lg">
-                        <strong>Bookmark Groups</strong> to organize tasks and manage multiple links efficiently.
-                    </p>
-                    <p className="text-white text-lg mt-4">
-                        <strong>Online Cards</strong>, now available through <strong>ShareBRO</strong>, let you share your socials, promote your business, or create CV-like cards with just a single link.
-                    </p>
-                    <p className="text-white text-lg mt-4">
-                        <strong>Coming Soon:</strong> Digitally save your exam papers, so you never need a hard copy again, and set reminders for retakes.
-                    </p>
-                    <p className="text-white text-lg mt-4">
-                        <strong>Coming Soon:</strong> Organize and manage your adult chores seamlessly with a yearly planner.
-                    </p>
-                </div>
 
             </div>
+
+            {/* Right Section */}
+            <div className="bg-gray-200 flex justify-center items-center sm:bg-gray-800 text-white">
+                <div className="w-full max-w-sm p-6 text-center bg-gray-800 rounded shadow">
+                    <img
+                        src="/assets/syncBro-WHITE-ALIGNED.png"
+                        alt="logo"
+                        className="w-full max-w-[300px] sm:max-w-[200px] md:max-w-[250px] lg:max-w-[300px] object-contain mx-auto"
+                    />
+
+                    <p className="text-lg italic mt-6">One app to rule them all!</p>
+                    <div className="mt-10 max-w-sm px-4">
+                        <p className="mb-4">
+                            <strong>Bookmark Groups</strong> to organize tasks and manage links efficiently.
+                        </p>
+                        <p className="mb-4">
+                            <strong>Online Cards</strong> via <strong>ShareBRO</strong>, let you share socials, business details, or CV-like cards with one link.
+                        </p>
+                        <p className="mb-4">
+                            <strong>Coming Soon:</strong> Save exam papers digitally and set reminders for retakes.
+                        </p>
+                        <p>
+                            <strong>Coming Soon:</strong> Organize and manage yearly chores effortlessly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
     );
 }
+
 export default Login;
