@@ -4,12 +4,15 @@ import axios from "axios";
 import Navbar from "../components/navbar";
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from "sweetalert2";
+import QRCode from "qrcode";
+// import QrReader from "react-qr-scanner"; // For scanning QR codes
 
 function Card() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation(); // Access location state
   const [showFullAbout, setShowFullAbout] = useState(false);
+  const [qrCode, setQrCode] = useState("");
 
   // State for card data
   const [card, setCard] = useState({
@@ -136,7 +139,7 @@ function Card() {
     }));
   };
   // Add a new link (social or project)
- 
+
 
   const addNewLink = (type) => {
     if (card[type].length >= 3) {
@@ -156,8 +159,8 @@ function Card() {
     }));
   };
   // Remove a link (social or project) with confirmation
-const removeLink = (index, type) => {
-  Swal.fire({
+  const removeLink = (index, type) => {
+    Swal.fire({
       title: "Are you sure?",
       text: "This action will permanently remove the link.",
       icon: "warning",
@@ -166,18 +169,18 @@ const removeLink = (index, type) => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, remove it!",
       cancelButtonText: "Cancel",
-  }).then((result) => {
+    }).then((result) => {
       if (result.isConfirmed) {
-          const updatedLinks = [...card[type]];
-          updatedLinks.splice(index, 1); // Remove the link at the specified index
-          setCard((prevCard) => ({
-              ...prevCard,
-              [type]: updatedLinks,
-          }));
-          Swal.fire("Removed!", "The link has been removed.", "success");
+        const updatedLinks = [...card[type]];
+        updatedLinks.splice(index, 1); // Remove the link at the specified index
+        setCard((prevCard) => ({
+          ...prevCard,
+          [type]: updatedLinks,
+        }));
+        Swal.fire("Removed!", "The link has been removed.", "success");
       }
-  });
-};
+    });
+  };
   const toggleEditMode = () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -304,6 +307,12 @@ const removeLink = (index, type) => {
       toast("Please select a file to upload.");
     }
   };
+  // Function to generate QR code
+  const generateQRCode = async () => {
+    const cardUrl = `${window.location.origin}/cards/${id}`; // Construct card URL
+    const qrImage = await QRCode.toDataURL(cardUrl); // Generate QR code image
+    setQrCode(qrImage); // Set the QR code image
+  };
 
 
   return (
@@ -358,53 +367,53 @@ const removeLink = (index, type) => {
         }}
       >
 
-{isEditing ? (
-  <div 
-  className=" mb-4 max-w-[200px] mx-auto hover:scale-110">
-    <button
-        type="button"
-        className=" "
-        
-        onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
-      >
-        🎨
-      </button>
-    <label
-      
-      htmlFor="backgroundColor"
-      className="font-bold"
-      style={{
-        color: `${circleTextColor}`,
-      }}
-    >
-      Background Color
-    </label>
-    <div className="relative inline-block">
-      {/* Hidden Color Input */}
-      <input
-        type="color"
-        id="backgroundColor"
-        name="cardBackgroundColor"
-        value={card.cardBackgroundColor}
-        onChange={(e) => {
-          handleInputChange(e); // Update the card background color
-          setTextColor(calculateTextColor(e.target.value)); // Recalculate text color dynamically
-        }}
-        className="opacity-0 absolute w-full h-full cursor-pointer" // Make the input invisible but clickable
-        style={{ top: 0, left: 0 }}
-      />
-      {/* Visible Icon */}
-      <button
-        type="button"
-        className=" "
-        
-        onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
-      >
-        🎨
-      </button>
-    </div>
-  </div>
-) : null}
+        {isEditing ? (
+          <div
+            className=" mb-4 max-w-[200px] mx-auto hover:scale-110">
+            <button
+              type="button"
+              className=" "
+
+              onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
+            >
+              🎨
+            </button>
+            <label
+
+              htmlFor="backgroundColor"
+              className="font-bold"
+              style={{
+                color: `${circleTextColor}`,
+              }}
+            >
+              Background Color
+            </label>
+            <div className="relative inline-block">
+              {/* Hidden Color Input */}
+              <input
+                type="color"
+                id="backgroundColor"
+                name="cardBackgroundColor"
+                value={card.cardBackgroundColor}
+                onChange={(e) => {
+                  handleInputChange(e); // Update the card background color
+                  setTextColor(calculateTextColor(e.target.value)); // Recalculate text color dynamically
+                }}
+                className="opacity-0 absolute w-full h-full cursor-pointer" // Make the input invisible but clickable
+                style={{ top: 0, left: 0 }}
+              />
+              {/* Visible Icon */}
+              <button
+                type="button"
+                className=" "
+
+                onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
+              >
+                🎨
+              </button>
+            </div>
+          </div>
+        ) : null}
 
 
 
@@ -647,7 +656,7 @@ const removeLink = (index, type) => {
                 <button
                   title={`${card.cardProjectLinks.length >= 3 ? "3 links /section" : "Add Link"}`}
                   onClick={() => addNewLink("cardProjectLinks")}
-                  
+
                   className={`rounded-full bg-white w-7 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
@@ -782,42 +791,73 @@ const removeLink = (index, type) => {
           </>
 
         ) : (
-          <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
-            {localStorage.getItem("token") && (
+          <div>
+            <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
+              {localStorage.getItem("token") && (
+                <button
+                  className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
+                  onClick={toggleEditMode}
+                >
+                  Edit
+                </button>
+              )}
               <button
-                className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
-                onClick={toggleEditMode}
+                className={`text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
+                  }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href)
+                    .then(() => {
+                      Swal.fire({
+                        title: "Copied!",
+                        text: "Card URL has been copied to the clipboard.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false,
+                      });
+                    })
+                    .catch(() => {
+                      Swal.fire({
+                        title: "Error!",
+                        text: "Failed to copy the URL. Please try again.",
+                        icon: "error",
+                        timer: 1600,
+                        showConfirmButton: false,
+                      });
+                    });
+                }}
               >
-                Edit
+                Copy URL
               </button>
-            )}
-            <button
-              className={`text-white font-bold py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
-                }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href)
-                  .then(() => {
-                    Swal.fire({
-                      title: "Copied!",
-                      text: "Card URL has been copied to the clipboard.",
-                      icon: "success",
-                      timer: 1500,
-                      showConfirmButton: false,
-                    });
-                  })
-                  .catch(() => {
-                    Swal.fire({
-                      title: "Error!",
-                      text: "Failed to copy the URL. Please try again.",
-                      icon: "error",
-                      timer: 1600,
-                      showConfirmButton: false,
-                    });
-                  });
-              }}
-            >
-              Copy URL
-            </button>
+
+            </div>
+
+
+            {/* Add QR Code block */}
+            <div className="flex flex-col items-center justify-center mt-6 mx-auto w-full max-w-[400px]">
+              {!qrCode ? (
+                // Show the "Generate QR Code" button if the QR code is not generated
+                <button
+                  onClick={generateQRCode}
+                  className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
+                >
+                  Generate QR Code
+                </button>
+              ) : (
+                // Show the QR code and its description if the QR code is generated
+                <div className="mt-4 flex flex-col items-center justify-center">
+                  <img
+                    src={qrCode}
+                    alt="Card QR Code"
+                    className="w-48 h-48 rounded-lg border-2 border-gray-800 shadow-lg"
+                  />
+                  <p className="mt-2 text-gray-700 font-semibold">
+                    Scan ME!
+                  </p>
+                </div>
+              )}
+            </div>
+
+
           </div>
         )}
       </div>
