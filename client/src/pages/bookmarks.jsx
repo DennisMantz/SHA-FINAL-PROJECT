@@ -13,7 +13,7 @@ function BookmarkManager() {
     useEffect(() => {
         const fetchBookmarks = async () => {
             try {
-                const { data } = await axios.get("http://localhost:8080/api/bookmarks", {
+                const { data } = await axios.get("http://localhost:8080/bookmarks", {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
@@ -47,11 +47,38 @@ function BookmarkManager() {
     // Save or update bookmark
     const saveOrUpdateBookmark = async () => {
         try {
-            const formattedLinks = newBookmark.links.map((link) => ({ url: link }));
+            // Validation: Ensure the title is not empty
+            if (!newBookmark.title.trim()) {
+                Swal.fire({
+                    title: "What's the point?",
+                    text: "Gief a Tittle",
+                    icon: "error",
+                    confirmButtonText: "Okay",
+                });
+                return;
+            }
+
+            // Validation: Ensure at least one non-empty link is present
+            const hasValidLink = newBookmark.links.some((link) => link.trim());
+            if (!hasValidLink) {
+                Swal.fire({
+                    title: "What's the point?",
+                    text: "Gief a link.",
+                    icon: "error",
+                    confirmButtonText: "Okay",
+                });
+                return;
+            }
+
+            // Format links into objects for the backend
+            const formattedLinks = newBookmark.links
+                .filter((link) => link.trim()) // Remove empty links
+                .map((link) => ({ url: link }));
 
             if (isEditing) {
+                // Update existing bookmark
                 const { data } = await axios.put(
-                    `http://localhost:8080/api/bookmarks/${editingBookmarkId}`,
+                    `http://localhost:8080/bookmarks/${editingBookmarkId}`,
                     { ...newBookmark, links: formattedLinks },
                     {
                         headers: {
@@ -66,8 +93,9 @@ function BookmarkManager() {
                     )
                 );
             } else {
+                // Add new bookmark
                 const { data } = await axios.post(
-                    "http://localhost:8080/api/bookmarks",
+                    "http://localhost:8080/bookmarks",
                     { ...newBookmark, links: formattedLinks },
                     {
                         headers: {
@@ -91,7 +119,7 @@ function BookmarkManager() {
     // Delete bookmark
     const deleteBookmark = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/bookmarks/${id}`, {
+            await axios.delete(`http://localhost:8080/bookmarks/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
@@ -104,22 +132,25 @@ function BookmarkManager() {
 
     // Open links in new tabs
     const openLinks = (links) => {
-        const formattedLinks = links.map((link) =>
-            link.url.startsWith("http://") || link.url.startsWith("https://")
-                ? link.url
-                : `https://${link.url}`
-        );
-
-        const linkListHTML = formattedLinks
-            .map((url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`)
-            .join("<br>");
-
+        const formattedLinks = links.map((link) => {
+            const url = link.url; // Use the original URL
+            const displayText = url.length > 40 ? `${url.substring(0, 40)}...` : url; // Shorten display text if too long
+            return `<a 
+                        href="https://${url}" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="text-blue-800  hover:text-blue-700 hover:scale-110 hover:ml-4 block" 
+                        title="${url}"> <!-- Full URL is displayed on hover -->
+                        ${displayText}
+                    </a>`;
+        }).join("");
+    
         Swal.fire({
-            title: "Browser prevents auto-opening multiple tabs. Hold Ctrl + Click on each link.",
+            title: "Hold Ctrl + R-Click on DA links",
             html: `
-                    <div style="text-align: left; font-size: 20px;">
-                        ${linkListHTML}
-                    </div>`,
+                <div class="text-left text-lg">
+                    ${formattedLinks}
+                </div>`,
             icon: "info",
             confirmButtonText: "Close",
             width: 600,
@@ -132,6 +163,9 @@ function BookmarkManager() {
             },
         });
     };
+    
+    
+    
 
     // Open edit form
     const openEditForm = (bookmark) => {
@@ -151,9 +185,9 @@ function BookmarkManager() {
                 {/* Bookmark Modal */}
                 {showForm && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white rounded p-6 w-[400px] shadow-lg">
+                        <div className="bg-gray-100 rounded p-6 w-[400px] shadow-lg">
                             <h2 className="text-xl font-bold mb-4">
-                                {isEditing ? "Edit Bookmark" : "Add Bookmark"}
+                                {isEditing ? "Edit Bookmark Group" : "Add Bookmark Group"}
                             </h2>
                             <input
                                 type="text"
@@ -176,20 +210,20 @@ function BookmarkManager() {
                                 />
                             ))}
                             <button
-                                className="mb-2 px-4 py-2 bg-green-600 text-white rounded"
+                                className="mb-2 px-4 py-2 bg-green-700 text-white rounded hover:scale-110"
                                 onClick={addLinkField}
                             >
                                 Add Link
                             </button>
                             <div className="flex justify-between mt-4">
                                 <button
-                                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                                    className="px-4 py-2 bg-gray-800 text-white rounded hover:scale-110"
                                     onClick={saveOrUpdateBookmark}
                                 >
                                     Save
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-red-600 text-white rounded"
+                                    className="px-4 py-2 bg-red-800 text-white rounded hover:scale-110"
                                     onClick={() => setShowForm(false)}
                                 >
                                     Cancel
@@ -200,32 +234,40 @@ function BookmarkManager() {
                 )}
 
                 {/* Display Bookmarks */}
-                <div className="grid grid-cols-2 sm:grid-cols-5  mx-auto sm:max-w-[600px] gap-4 mt-2 relative">
-                    <div className={`my-[26px] left-[-50px] absolute ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'}`}>
-                        {/* Add Bookmark Button */}
+                <div className={`grid grid-cols-2 sm:grid-cols-5  mx-auto sm:max-w-[600px] gap-x-5 gap-y-3 mt-2 relative ${bookmarks.length > 4 || bookmarks.length === 0 ? 'sm:grid-cols-5' : 'sm:flex'} `}>
+                    <div className={` my-[26px] left-[-50px]  ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} absolute`}>
                         <button
-                            title="Add Bookmark"
-                            className={`flex justify-center mx-auto ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'}`}
+                            title={`${bookmarks.length > 9 ? `10 = max, why not?` : `Add Bookmark`}`}
+                            className={`flex justify-center mx-auto ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} ${bookmarks.length > 9 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                             onClick={() => {
+                                if (bookmarks.length >= 10) {
+                                    Swal.fire({
+                                        title: "Limit Reached",
+                                        text: "You can only have up to 10 bookmarks.",
+                                        icon: "warning",
+                                        confirmButtonText: "Okay",
+                                    });
+                                    return;
+                                }
                                 setNewBookmark({ title: "", links: [""] });
                                 setShowForm(true);
                                 setIsEditing(false);
                             }}
                         >
                             <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
-                            {bookmarks.length === 0 && <p className="">Add a bookmark</p>}
+                            {bookmarks.length === 0 && <p className="w-full">Add bookmarks</p>}
                         </button>
                     </div>
 
                     {bookmarks.map((bookmark) => (
                         <div
                             key={bookmark._id}
-                            className="bg-gray-800 text-white max-w-[95px] p-1 rounded relative group hover:scale-115"
+                            className="bg-gray-800 text-white max-w-[95px] p-1 rounded relative group hover:scale-110"
                         >
                             {/* Title button */}
                             <button
                                 title="Show Links"
-                                className="hover:scale-105  text-center w-[80px]"
+                                className="hover:scale-110  text-center w-[80px]"
                                 onClick={() => openLinks(bookmark.links)}
                             >
                                 {bookmark.title}

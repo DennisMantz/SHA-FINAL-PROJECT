@@ -13,8 +13,8 @@ function LogoutButton() {
   };
 
   return (
-    <button className="cursor-pointer hover:scale-105 font-bold text-lg" onClick={handleLogout} >
-      Logout
+    <button className="block text-right mr-4 text-white py-2 px-4 hover:scale-110 font-bold w-full text-lg" onClick={handleLogout} >
+      Logout 🤢
     </button>
   );
 }

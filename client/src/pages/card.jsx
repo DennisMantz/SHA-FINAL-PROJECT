@@ -104,7 +104,12 @@ function Card() {
         setCard(response.data);
       } catch (error) {
         console.error("Error fetching card data:", error);
-        toast.error("Error loading card data. Please try again.");
+        Swal.fire({
+          title: "Error",
+          text: "Error loading card data. Please try again.",
+          icon: "error",
+          confirmButtonText: "Okay",
+        });
         navigate("/");
       }
     };
@@ -131,9 +136,16 @@ function Card() {
     }));
   };
   // Add a new link (social or project)
+ 
+
   const addNewLink = (type) => {
     if (card[type].length >= 3) {
-      toast(`You can only add up to 3 links per category.`);
+      Swal.fire({
+        title: "Limit Reached",
+        text: "Only 3 links per category.",
+        icon: "warning",
+        confirmButtonText: "Okay",
+      });
       return; // Exit the function if the limit is reached
     }
 
@@ -156,7 +168,12 @@ function Card() {
   const toggleEditMode = () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast("You must be logged in to edit this card.");
+      Swal.fire({
+        title: "Not Logged In",
+        text: "You must be logged in to edit this card.",
+        icon: "warning",
+        confirmButtonText: "Okay",
+      });
       return;
     }
     setOriginalCard({ ...card });  // Store the original card data
@@ -328,27 +345,54 @@ function Card() {
         }}
       >
 
-        {isEditing ? (
-          <div className="text-center mb-4">
-            <label htmlFor="backgroundColor" className=" font-bold mr-2" style={{
-              color: `${circleTextColor} `
-            }}>
-              Background Color:
-            </label>
-            <input
-              type="color"
-              id="backgroundColor"
-              name="cardBackgroundColor"
-              value={card.cardBackgroundColor}
-              onChange={(e) => {
-                handleInputChange(e); // Update the card background color
-                setTextColor(calculateTextColor(e.target.value)); // Recalculate text color dynamically
-              }}
-              className="rounded border border-gray-300 p-1"
+{isEditing ? (
+  <div 
+  className=" mb-4 max-w-[200px] mx-auto hover:scale-110">
+    <button
+        type="button"
+        className=" "
+        
+        onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
+      >
+        🎨
+      </button>
+    <label
+      
+      htmlFor="backgroundColor"
+      className="font-bold"
+      style={{
+        color: `${circleTextColor}`,
+      }}
+    >
+      Background Color
+    </label>
+    <div className="relative inline-block">
+      {/* Hidden Color Input */}
+      <input
+        type="color"
+        id="backgroundColor"
+        name="cardBackgroundColor"
+        value={card.cardBackgroundColor}
+        onChange={(e) => {
+          handleInputChange(e); // Update the card background color
+          setTextColor(calculateTextColor(e.target.value)); // Recalculate text color dynamically
+        }}
+        className="opacity-0 absolute w-full h-full cursor-pointer" // Make the input invisible but clickable
+        style={{ top: 0, left: 0 }}
+      />
+      {/* Visible Icon */}
+      <button
+        type="button"
+        className=" "
+        
+        onClick={() => document.getElementById('backgroundColor').click()} // Programmatically trigger the input
+      >
+        🎨
+      </button>
+    </div>
+  </div>
+) : null}
 
-            />
-          </div>
-        ) : null}
 
 
         <div>
@@ -481,9 +525,9 @@ function Card() {
                 <button
                   title={`${card.cardSocialLinks.length >= 3 ? "3 links /section" : "Add Link"}`}
                   onClick={() => addNewLink("cardSocialLinks")}
-                  className={`rounded-full bg-white w-7 h-7 ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  className={`rounded-full bg-white w-7 h-7  ${card.cardSocialLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
+                  <img src="/assets/circle-plus-sm.svg" alt="Add Link" className=" w-7 h-7 rounded-full" />
                 </button>
 
               </div>
@@ -590,6 +634,7 @@ function Card() {
                 <button
                   title={`${card.cardProjectLinks.length >= 3 ? "3 links /section" : "Add Link"}`}
                   onClick={() => addNewLink("cardProjectLinks")}
+                  
                   className={`rounded-full bg-white w-7 h-7 ${card.cardProjectLinks.length >= 3 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
@@ -752,7 +797,7 @@ function Card() {
                       title: "Error!",
                       text: "Failed to copy the URL. Please try again.",
                       icon: "error",
-                      timer: 1500,
+                      timer: 1600,
                       showConfirmButton: false,
                     });
                   });

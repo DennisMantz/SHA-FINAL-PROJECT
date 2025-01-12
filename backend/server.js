@@ -30,7 +30,7 @@ app.use(
 //routes -middleware router "const router = express.Router();"
 app.use("/users", userRoutes);
 app.use("/cards", cardRoutes);
-app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/bookmarks", bookmarkRoutes);
 
 
 

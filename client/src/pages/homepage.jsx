@@ -33,7 +33,7 @@ function Homepage() {
                     <div className="grid  justify-center items-center ">
                         <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >MedBro</button>
 
-                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">Under construction</p>
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
                         <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
                     <img className=" mx-auto h-[450px] " src="/assets/MedBro1.PNG" alt="logo" />
@@ -45,7 +45,7 @@ function Homepage() {
                     <div className="grid  justify-center items-center ">
                         <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" >DocBro</button>
 
-                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">Under construction</p>
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
                         <img className="   " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
                     <img className=" mx-auto h-[450px] " src="/assets/DocBro1.PNG" alt="logo" />
