@@ -20,15 +20,20 @@ app.use(express.json({ limit: "50mb" })); // Increase JSON payload limit
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // For URL-encoded payloads
 
 // Configure CORS
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Allow requests from your frontend origin
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    allowedHeaders: ["Authorization", "Content-Type"], // Allowed headers
-    credentials: true, // Allow cookies, if needed
-  })
-);
+const allowedOrigins =
+  process.env.NODE_ENV === "development"
+    ? ["http://localhost:5173"]
+    : ["https://syncbro.netlify.app"];
 
+    app.use(
+      cors({
+        origin: allowedOrigins,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Authorization", "Content-Type"],
+        credentials: true,
+      })
+    );
+    
 // Add Helmet for Security
 app.use(helmet()); // Enable default security headers
 
