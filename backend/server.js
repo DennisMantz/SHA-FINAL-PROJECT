@@ -25,15 +25,23 @@ const allowedOrigins =
     ? ["http://localhost:5173"]
     : ["https://syncbro.netlify.app"];
 
-    app.use(
-      cors({
-        origin: allowedOrigins,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Authorization", "Content-Type"],
-        credentials: true,
-      })
-    );
-    
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true); // Origin is allowed
+      } else {
+        callback(new Error("Not allowed by CORS")); // Origin is not allowed
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+    credentials: true,
+  })
+);
 // Add Helmet for Security
 app.use(helmet()); // Enable default security headers
 
