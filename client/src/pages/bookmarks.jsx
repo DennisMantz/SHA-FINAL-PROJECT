@@ -287,13 +287,13 @@ const handleAddBookmarkClick = () => {
 
                 {/* Display Bookmarks */}
                 <div className={`grid grid-cols-2 sm:grid-cols-5  mx-auto sm:max-w-[600px] gap-x-5 gap-y-3 mt-2 relative ${bookmarks.length > 4 || bookmarks.length === 0 ? 'sm:grid-cols-5' : 'sm:flex'} `}>
-                    <div className={`  left-[-50px]  ${ bookmarks.length < 6 ? 'w-auto  ' : 'w-[150px] my-[26px] left-[-115px]'} absolute`}>
+                    <div className={`  left-[-50px]  ${ bookmarks.length < 6 ? 'w-auto  ' : ' my-[26px]'} absolute`}>
                         <button
                             title={`${bookmarks.length > 9 ? `10 = max, cause why not?` : `Add Bookmark`}`}
                             className={`flex justify-center mx-auto ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} ${bookmarks.length > 9 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                             onClick={handleAddBookmarkClick}
                         >
-                            <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
+                            <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full " />
                             {bookmarks.length === 0 && <p className="w-full">Add bookmarks</p>}
                         </button>
                     </div>
