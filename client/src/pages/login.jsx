@@ -30,7 +30,7 @@ function Login() {
         setErrors((prevErrors) => ({
           ...prevErrors,
           password:
-            "Password must be at least 8 characters and include a mix of letters, numbers, and symbols.",
+            "Password must be at least 8 characters and include a mix of uppercase and lowercase letters, numbers, and symbols.",
         }));
       } else {
         setErrors((prevErrors) => {
