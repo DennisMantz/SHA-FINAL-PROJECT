@@ -29,7 +29,7 @@ const getCardById = async (req, res) => {
   try {
     const cardId = req.params.id;
     const card = await Card.findById(cardId).select(
-      "cardFirstName cardLastName cardPicture cardAbout cardSocialLinks cardProjectLinks cardBackgroundColor cardCreator"
+      "cardFirstName cardLastName cardPicture cardEmail cardAbout cardSocialLinks cardProjectLinks cardBackgroundColor cardCreator cardTitle"
     ); // Exclude sensitive fields
 
     if (!card) {
