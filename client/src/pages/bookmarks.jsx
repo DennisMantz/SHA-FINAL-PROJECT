@@ -3,6 +3,13 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
+
+const API_URL = import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_URL_LOCAL
+  : import.meta.env.VITE_API_URL_PROD;
+console.log("Using API URL:", API_URL);
+
+
 function BookmarkManager() {
     const [bookmarks, setBookmarks] = useState([]);
     const [newBookmark, setNewBookmark] = useState({ title: "", links: [""] });
@@ -11,11 +18,13 @@ function BookmarkManager() {
     const [editingBookmarkId, setEditingBookmarkId] = useState(null);
     const navigate = useNavigate(); // Initialize navigate
 
+
+
     // Fetch bookmarks
     useEffect(() => {
         const fetchBookmarks = async () => {
             try {
-                const { data } = await axios.get("http://localhost:8080/bookmarks", {
+                const { data } = await axios.get(`${API_URL}/bookmarks`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
@@ -76,7 +85,7 @@ function BookmarkManager() {
 
             if (isEditing) {
                 const { data } = await axios.put(
-                    `http://localhost:8080/bookmarks/${editingBookmarkId}`,
+                    `${API_URL}/bookmarks/${editingBookmarkId}`,
                     { ...newBookmark, links: formattedLinks },
                     {
                         headers: {
@@ -92,7 +101,7 @@ function BookmarkManager() {
                 );
             } else {
                 const { data } = await axios.post(
-                    "http://localhost:8080/bookmarks",
+                    `${API_URL}/bookmarks`,
                     { ...newBookmark, links: formattedLinks },
                     {
                         headers: {
@@ -128,7 +137,7 @@ const deleteBookmark = async (id) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:8080/bookmarks/${id}`, {
+                await axios.delete(`${API_URL}/bookmarks/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },

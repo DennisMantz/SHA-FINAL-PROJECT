@@ -4,16 +4,25 @@ import axios from "axios";
 import Navbar from "../components/navbar";
 import Swal from "sweetalert2";
 
+
+const API_URL = import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_URL_LOCAL
+  : import.meta.env.VITE_API_URL_PROD;
+console.log("Using API URL:", API_URL);
+
+
 function AllCards() {
     const [cards, setCards] = useState([]); // Holds the user's cards
     const [canAddCard, setCanAddCard] = useState(true); // Determines if the "Add Card" button is visible
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+
+
     useEffect(() => {
         const fetchCards = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/cards", {
+                const response = await axios.get(`${API_URL}/cards`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
@@ -38,7 +47,7 @@ function AllCards() {
         setLoading(true); // Show loading indicator
         try {
             const response = await axios.post(
-                "http://localhost:8080/cards",
+                `${API_URL}/cards`,
                 {}, // Empty body since defaults are handled by the backend schema
                 {
                     headers: {
@@ -70,7 +79,7 @@ function AllCards() {
     const handleDeleteCard = async (id) => {
         setLoading(true); // Show loading indicator
         try {
-            await axios.delete(`http://localhost:8080/cards/${id}`, {
+            await axios.delete(`${API_URL}/cards/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },

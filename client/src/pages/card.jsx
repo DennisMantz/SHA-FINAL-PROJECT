@@ -7,6 +7,12 @@ import Swal from "sweetalert2";
 import QRCode from "qrcode";
 // import QrReader from "react-qr-scanner"; // For scanning QR codes
 
+
+const API_URL = import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_URL_LOCAL
+  : import.meta.env.VITE_API_URL_PROD;
+console.log("Using API URL:", API_URL);
+
 function Card() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -30,6 +36,7 @@ function Card() {
   const [textColor, setTextColor] = useState("#000000"); // State for dynamic text color
   const [isEditing, setIsEditing] = useState(location.state?.isEditing || false);
   const [originalCard, setOriginalCard] = useState(null); // Stores the original data for cancellation
+
 
 
 
@@ -103,7 +110,7 @@ function Card() {
     const fetchCardData = async () => {
 
       try {
-        const response = await axios.get(`http://localhost:8080/cards/${id}`);
+        const response = await axios.get(`${API_URL}/cards/${id}`);
         setCard(response.data);
       } catch (error) {
         console.error("Error fetching card data:", error);
@@ -233,7 +240,7 @@ function Card() {
       if (result.isConfirmed) {
         try {
           await axios.put(
-            `http://localhost:8080/cards/${id}`,
+            `${API_URL}/cards/${id}`,
             { ...card },
             {
               headers: {
@@ -280,7 +287,7 @@ function Card() {
 
       try {
         const response = await axios.post(
-          `http://localhost:8080/cards/${id}/upload-image`, // Include the card ID
+          `${API_URL}/cards/${id}/upload-image`, // Include the card ID
           { image: base64Image },
           {
             headers: {

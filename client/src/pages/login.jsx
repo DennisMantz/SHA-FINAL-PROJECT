@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+const API_URL = import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_URL_LOCAL
+  : import.meta.env.VITE_API_URL_PROD;
+console.log("Using API URL:", API_URL);
+
 function Login() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,7 +55,7 @@ function Login() {
         try {
             const { email, password } = loginData;
 
-            const response = await axios.post(`http://localhost:8080/users/login`, loginData);
+            const response = await axios.post(`${API_URL}/users/login`, loginData);
             if (response.status === 200) {
                 const { token, msg } = response.data;
                 localStorage.setItem("token", token);

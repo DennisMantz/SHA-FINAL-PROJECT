@@ -2,6 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+
+
+const API_URL = import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_URL_LOCAL
+  : import.meta.env.VITE_API_URL_PROD;
+console.log("Using API URL:", API_URL);
+
 function Register() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +58,7 @@ function Register() {
         }
 
         try {
-            const response = await axios.post("http://localhost:8080/users/register", {
+            const response = await axios.post(`${API_URL}/users/register`, {
                 username,
                 email,
                 password,
