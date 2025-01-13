@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userSchema");
+const Card = require("../models/cardSchema");
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -23,4 +24,26 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-module.exports = verifyToken;
+
+// Middleware to verify card ownership
+const verifyOwnership = async (req, res, next) => {
+  try {
+    const card = await Card.findById(req.params.id);
+
+    if (!card) {
+      return res.status(404).json({ msg: "Card not found" });
+    }
+
+    if (card.cardCreator.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ msg: "Access denied. You do not own this card." });
+    }
+
+    req.card = card; // Attach the card to the request object for further use
+    next();
+  } catch (error) {
+    console.error("Error verifying ownership:", error.message);
+    res.status(500).json({ msg: "Internal server error", error: error.message });
+  }
+};
+
+module.exports = { verifyToken, verifyOwnership };

@@ -5,6 +5,7 @@ import Navbar from "../components/navbar";
 import { ToastContainer, toast } from 'react-toastify';
 import Swal from "sweetalert2";
 import QRCode from "qrcode";
+import jwtDecode from "jwt-decode";
 // import QrReader from "react-qr-scanner"; // For scanning QR codes
 
 
@@ -19,6 +20,7 @@ function Card() {
   const location = useLocation(); // Access location state
   const [showFullAbout, setShowFullAbout] = useState(false);
   const [qrCode, setQrCode] = useState("");
+  const [isOwner, setIsOwner] = useState(false); // Ownership state
 
   // State for card data
   const [card, setCard] = useState({
@@ -112,7 +114,16 @@ function Card() {
       try {
         const response = await axios.get(`${API_URL}/cards/${id}`);
         setCard(response.data);
-      } catch (error) {
+
+ // Check if the logged-in user is the owner
+ const token = localStorage.getItem("token");
+ if (token) {
+   const decodedToken = jwtDecode(token); // Decode the token to get userId
+   if (response.data.cardCreator === decodedToken.userId) {
+     setIsOwner(true); // Set ownership state
+   }
+ }
+} catch (error) {
         console.error("Error fetching card data:", error);
         Swal.fire({
           title: "Error",
@@ -188,12 +199,12 @@ function Card() {
       }
     });
   };
+
   const toggleEditMode = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!isOwner) {
       Swal.fire({
-        title: "Not Logged In",
-        text: "You must be logged in to edit this card.",
+        title: "Access Denied",
+        text: "You are not allowed to edit this card.",
         icon: "warning",
         confirmButtonText: "Okay",
       });
@@ -314,17 +325,22 @@ function Card() {
       toast("Please select a file to upload.");
     }
   };
-  // Function to generate QR code
+
+
+  
+  // Used in the QR code generation + copy URL logic
+  const generateCardUrl = (id) => `${window.location.origin}/shareBro/${id}`;
+// Function to generate QR code
   const generateQRCode = async () => {
-    const cardUrl = `${window.location.origin}/cards/${id}`; // Construct card URL
-    const qrImage = await QRCode.toDataURL(cardUrl); // Generate QR code image
-    setQrCode(qrImage); // Set the QR code image
-  };
+  const cardUrl = generateCardUrl(id); // Use the reusable function
+  const qrImage = await QRCode.toDataURL(cardUrl); // Generate QR code image
+  setQrCode(qrImage); // Set the QR code image
+};
 
 
   return (
     <main className="bg-gray-200 min-h-screen ">
-      {localStorage.getItem("token") && (<Navbar />)}
+      {isOwner && (<Navbar />)}
 
       <div className="flex justify-end max-w-[480px] mx-auto relative">
         {/* Card Title */}
@@ -350,7 +366,7 @@ function Card() {
               />
             </>
           ) : (
-            localStorage.getItem("token") && (
+            isOwner && (
               <div className="">
                 <button
                   className=" hover:scale-110  absolute left-[429px] top-[6px]"
@@ -808,7 +824,7 @@ function Card() {
           <div>
             {/* Buttons Section */}
             <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
-              {localStorage.getItem("token") && (
+              {isOwner && (
                 <>
                   <button
                     className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
@@ -819,7 +835,8 @@ function Card() {
                   <button
                     className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-110 rounded-lg"
                     onClick={() => {
-                      navigator.clipboard.writeText(window.location.href)
+                      const cardUrl = generateCardUrl(id);
+                      navigator.clipboard.writeText(cardUrl)
                         .then(() => {
                           Swal.fire({
                             title: "Copied!",
@@ -848,7 +865,7 @@ function Card() {
 
             {/* QR Code Section */}
             <div className="flex flex-col items-center justify-center mt-6 mx-auto w-full max-w-[400px]">
-              {localStorage.getItem("token") && (
+              {isOwner && (
                 !qrCode ? (
                   <button
                     onClick={generateQRCode}
@@ -870,7 +887,7 @@ function Card() {
             </div>
             {/* Navigation option to /Register when not logged in */}
             <div>
-              {!localStorage.getItem("token") && (
+              {!isOwner && (
                 <>
                   <p className="text-gray-800 font-bold text-xl">Sign up to create your own unique cards</p>
                   <button

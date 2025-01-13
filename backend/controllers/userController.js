@@ -37,7 +37,17 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
     });
-    return res.status(201).send({ msg: "User Created", newUser }); // Status 201: Created
+
+  // Generate a token
+  const payload = { userId: newUser._id, email: newUser.email };
+  const secret = process.env.JWT_SECRET;
+  const token = jwt.sign(payload, secret);
+
+     // Return success response with token
+     return res.status(201).send({
+      msg: "User created successfully",
+      token, // Include the token in the response
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).send({ msg: "Internal Server Error", error }); // Status 500: Server Error

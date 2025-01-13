@@ -88,8 +88,10 @@ function Register() {
       if (response.status === 201) {
         const { msg, token } = response.data;
         alert(msg);
+
         if (token) {
           localStorage.setItem("token", token);
+        //   console.log("Token stored:", token); // debug
         }
         navigate("/");
       }
@@ -221,13 +223,13 @@ function Register() {
               <strong>Bookmark Groups</strong> to organize tasks and manage links efficiently.
             </p>
             <p className="mb-4">
-              <strong>Online Cards</strong> via <strong>ShareBRO</strong>, let you share socials, business details, or CV-like cards with one link.
+              <strong>Online Cards</strong> via <strong>ShareBRO</strong>, lets you share socials, business details, or CV-like cards with one link.
             </p>
             <p className="mb-4">
               <strong>Coming Soon:</strong> Save exam papers digitally and set reminders for retakes.
             </p>
             <p>
-              <strong>Coming Soon:</strong> Organize and manage yearly chores effortlessly.
+              <strong>Coming Soon:</strong> Organize and manage recurring tasks effortlessly.
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 const Card = require("../models/cardSchema");
 const { cloudinary, transformCircleImage } = require("../index");
 
+
 // Create a new card (empty or with data)
 const addCard = async (req, res) => {
   try {
@@ -24,28 +25,24 @@ const addCard = async (req, res) => {
   }
 };
 
-let getCardById = async (req, res) => {
+const getCardById = async (req, res) => {
   try {
     const cardId = req.params.id;
-    const card = await Card.findById(cardId);
+    const card = await Card.findById(cardId).select(
+      "cardFirstName cardLastName cardPicture cardAbout cardSocialLinks cardProjectLinks cardBackgroundColor cardCreator"
+    ); // Exclude sensitive fields
+
     if (!card) {
       return res.status(404).send({ msg: "Card not found" });
     }
-    // // Only return public data
-    // const publicCardData = {
-    //   cardFirstName: card.cardFirstName,
-    //   cardLastName: card.cardLastName,
-    //   cardPicture: card.cardPicture,
-    //   cardAbout: card.cardAbout,
-    //   cardSocialLinks: card.cardSocialLinks,
-    //   cardProjectLinks: card.cardProjectLinks,
-    //   cardBackgroundColor: card.cardBackgroundColor,
-    // };
 
     res.status(200).json(card);
   } catch (error) {
-    console.log(error);
-    return res.status(500).send({ msg: "Error fetching card by ID", error });
+    console.error("Error fetching card by ID:", error.message);
+    res.status(500).json({
+      msg: "Error fetching card by ID",
+      error: error.message,
+    });
   }
 };
 
@@ -68,14 +65,8 @@ const getAllCards = async (req, res) => {
 // Update a card by ID
 const updateCard = async (req, res) => {
   try {
-    const updatedCard = await Card.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Return the updated card
-    });
-
-    if (!updatedCard) {
-      return res.status(404).json({ msg: "Card not found" });
-    }
-
+    Object.assign(req.card, req.body); // Update only the fields present in the body
+    const updatedCard = await req.card.save(); // Save the changes
     res.status(200).json({
       msg: "Card updated successfully",
       card: updatedCard,
@@ -88,15 +79,11 @@ const updateCard = async (req, res) => {
     });
   }
 };
-// Delete a card by ID
+
+
 const deleteCard = async (req, res) => {
   try {
-    const deletedCard = await Card.findByIdAndDelete(req.params.id);
-
-    if (!deletedCard) {
-      return res.status(404).json({ msg: "Card not found" });
-    }
-
+    const deletedCard = await req.card.deleteOne(); // Use the card from the middleware
     res.status(200).json({
       msg: "Card deleted successfully",
       card: deletedCard,
@@ -109,6 +96,7 @@ const deleteCard = async (req, res) => {
     });
   }
 };
+
 
 const uploadImage = async (req, res) => {
   try {

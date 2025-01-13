@@ -23,9 +23,9 @@ function Homepage() {
                     <div className="grid  justify-center items-center ">
                         <button className=" mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white hover:scale-105  bg-gray-800 mb-3" onClick={() => navigate("/Cards")}>ShareBro</button>
 
-                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">-Share your socials<br></br>-Promote your business<br></br>-Showcase your projects<br></br>-Create CV style cards for every job application<br></br> All in one place!" </p>
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">-Share your socials<br></br>-Promote your business<br></br>-Showcase your projects<br></br>-Create CV-style cards for any job application<br></br> All in one place! </p>
                     </div>
-                    <img className=" mx-auto h-[450px] " src="/assets/CardSNIP1.PNG" alt="logo" />
+                    <img className=" mx-auto h-[450px] " src="/assets/ShareBro.PNG" alt="logo" />
 
                 </section>
 
@@ -34,10 +34,10 @@ function Homepage() {
                     <div className="grid  justify-center items-center ">
                         <button className="cursor-not-allowed mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white   bg-gray-800 mb-3" >MedBro</button>
 
-                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under Construction🚧</p>
                         <img className="xl:w-[220px] justify-self-end  " src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
-                    <img className=" mx-auto h-[450px] " src="/assets/MedBro1.PNG" alt="logo" />
+                    <img className=" mx-auto h-[450px] " src="/assets/MedBro-last.PNG" alt="logo" />
 
                 </section>
 
@@ -46,10 +46,10 @@ function Homepage() {
                     <div className="grid  justify-center items-center ">
                         <button className="cursor-not-allowed mx-auto w-[180px] h-[100px]  border rounded-lg border-gray-800 text-3xl font-bold text-white   bg-gray-800 mb-3" >DocBro</button>
 
-                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under construction🚧</p>
+                        <p className="w-[250px] text-center text-lg mb-2 font-bold text-gray-900">🚧Under Construction🚧</p>
                         <img className=" xl:w-[220px]  justify-self-end" src="/assets/truck-ramp-box-solid1.svg" alt="logo" />
                         </div>
-                    <img className=" mx-auto h-[450px] " src="/assets/DocBro1.PNG" alt="logo" />
+                    <img className=" mx-auto h-[450px] " src="/assets/DocBro-last.PNG" alt="logo" />
 
                 </section>
             </main>
