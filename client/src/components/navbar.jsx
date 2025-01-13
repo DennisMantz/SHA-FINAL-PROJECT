@@ -8,7 +8,7 @@ function Navbar() {
 
   return (
     <header className="h-[15%]  xl:h-[20%] min-w-screen grid grid-cols-[1fr_auto_1fr] items-center bg-gray-800 text-white">
-      {/* Left Placeholder (dropdown menu) */}
+      {/* Left Placeholder */}
       <div></div>
 
       {/* Centered Logo */}

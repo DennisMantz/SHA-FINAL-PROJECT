@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 function BookmarkManager() {
     const [bookmarks, setBookmarks] = useState([]);
@@ -8,6 +9,7 @@ function BookmarkManager() {
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingBookmarkId, setEditingBookmarkId] = useState(null);
+    const navigate = useNavigate(); // Initialize navigate
 
     // Fetch bookmarks
     useEffect(() => {
@@ -35,7 +37,7 @@ function BookmarkManager() {
         setNewBookmark({ ...newBookmark, links: updatedLinks });
     };
 
-    // Add new link field
+    // Add link field
     const addLinkField = () => {
         if (newBookmark.links.length < 10) {
             setNewBookmark({ ...newBookmark, links: [...newBookmark.links, ""] });
@@ -47,36 +49,32 @@ function BookmarkManager() {
     // Save or update bookmark
     const saveOrUpdateBookmark = async () => {
         try {
-            // Validation: Ensure the title is not empty
             if (!newBookmark.title.trim()) {
                 Swal.fire({
-                    title: "What's the point?",
-                    text: "Gief a Tittle",
+                    title: "Invalid Title",
+                    text: "Please provide a valid title.",
                     icon: "error",
                     confirmButtonText: "Okay",
                 });
                 return;
             }
 
-            // Validation: Ensure at least one non-empty link is present
             const hasValidLink = newBookmark.links.some((link) => link.trim());
             if (!hasValidLink) {
                 Swal.fire({
-                    title: "What's the point?",
-                    text: "Gief a link.",
+                    title: "Invalid Links",
+                    text: "Please provide at least one valid link.",
                     icon: "error",
                     confirmButtonText: "Okay",
                 });
                 return;
             }
 
-            // Format links into objects for the backend
             const formattedLinks = newBookmark.links
-                .filter((link) => link.trim()) // Remove empty links
+                .filter((link) => link.trim())
                 .map((link) => ({ url: link }));
 
             if (isEditing) {
-                // Update existing bookmark
                 const { data } = await axios.put(
                     `http://localhost:8080/bookmarks/${editingBookmarkId}`,
                     { ...newBookmark, links: formattedLinks },
@@ -93,7 +91,6 @@ function BookmarkManager() {
                     )
                 );
             } else {
-                // Add new bookmark
                 const { data } = await axios.post(
                     "http://localhost:8080/bookmarks",
                     { ...newBookmark, links: formattedLinks },
@@ -144,6 +141,36 @@ const deleteBookmark = async (id) => {
             }
         }
     });
+};
+
+const handleAddBookmarkClick = () => {
+    if (!localStorage.getItem("token")) {
+        // Redirect to login if the user is not logged in
+        Swal.fire({
+            title: "Not Logged In",
+            text: "You need to log in to add a bookmark.",
+            icon: "warning",
+            confirmButtonText: "Go to Login",
+        }).then(() => {
+            navigate("/login"); // Programmatically navigate to the login page
+        });
+        return;
+    }
+
+    if (bookmarks.length >= 10) {
+        Swal.fire({
+            title: "Limit Reached",
+            text: "You can only have up to 10 bookmarks.",
+            icon: "warning",
+            confirmButtonText: "Okay",
+        });
+        return;
+    }
+
+    // Open the form to add a bookmark
+    setNewBookmark({ title: "", links: [""] });
+    setShowForm(true);
+    setIsEditing(false);
 };
 
     // Open links in new tabs
@@ -251,24 +278,11 @@ const deleteBookmark = async (id) => {
 
                 {/* Display Bookmarks */}
                 <div className={`grid grid-cols-2 sm:grid-cols-5  mx-auto sm:max-w-[600px] gap-x-5 gap-y-3 mt-2 relative ${bookmarks.length > 4 || bookmarks.length === 0 ? 'sm:grid-cols-5' : 'sm:flex'} `}>
-                    <div className={`  left-[-50px]  ${ bookmarks.length < 6 ? 'w-auto  ' : 'w-[150px] my-[26px] left-[-110px]'} absolute`}>
+                    <div className={`  left-[-50px]  ${ bookmarks.length < 6 ? 'w-auto  ' : 'w-[150px] my-[26px] left-[-115px]'} absolute`}>
                         <button
                             title={`${bookmarks.length > 9 ? `10 = max, cause why not?` : `Add Bookmark`}`}
                             className={`flex justify-center mx-auto ${bookmarks.length > 0 ? 'w-auto' : 'w-[150px]'} ${bookmarks.length > 9 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                            onClick={() => {
-                                if (bookmarks.length >= 10) {
-                                    Swal.fire({
-                                        title: "Limit Reached",
-                                        text: "You can only have up to 10 bookmarks.",
-                                        icon: "warning",
-                                        confirmButtonText: "Okay",
-                                    });
-                                    return;
-                                }
-                                setNewBookmark({ title: "", links: [""] });
-                                setShowForm(true);
-                                setIsEditing(false);
-                            }}
+                            onClick={handleAddBookmarkClick}
                         >
                             <img src="/assets/circle-plus-sm.svg" alt="Add Link" className="bg-white w-7 h-7 rounded-full" />
                             {bookmarks.length === 0 && <p className="w-full">Add bookmarks</p>}

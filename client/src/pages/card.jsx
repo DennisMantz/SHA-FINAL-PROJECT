@@ -318,7 +318,7 @@ function Card() {
   return (
     <main className="bg-gray-200 min-h-screen ">
       {localStorage.getItem("token") && (<Navbar />)}
-      
+
       <div className="flex justify-end max-w-[480px] mx-auto relative">
         {/* Card Title */}
         <div className={`mt-3 ${isEditing ? 'mx-auto' : 'justify-end'}`}>
@@ -780,62 +780,69 @@ function Card() {
 
 
       </div>
-      {/* Edit/Save Button */}
+
       <div className="text-center">
         {isEditing ? (
           <>
-            <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-green-800 to-green-900 hover:scale-110 rounded-lg" onClick={handleSave}>Save</button>
-            <button className="text-white font-bold py-2 px-3 bg-gradient-to-r from-red-800 to-red-900 hover:scale-110 rounded-lg" onClick={handleCancel} style={{ marginLeft: "10px" }}>
+            <button
+              className="text-white font-bold py-2 px-3 bg-gradient-to-r from-green-800 to-green-900 hover:scale-110 rounded-lg"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+            <button
+              className="text-white font-bold py-2 px-3 bg-gradient-to-r from-red-800 to-red-900 hover:scale-110 rounded-lg ml-2"
+              onClick={handleCancel}
+            >
               Cancel
             </button>
           </>
-
         ) : (
           <div>
+            {/* Buttons Section */}
             <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
               {localStorage.getItem("token") && (
-                <button
-                  className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
-                  onClick={toggleEditMode}
-                >
-                  Edit
-                </button>
+                <>
+                  <button
+                    className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
+                    onClick={toggleEditMode}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-110 rounded-lg"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href)
+                        .then(() => {
+                          Swal.fire({
+                            title: "Copied!",
+                            text: "Card URL has been copied to the clipboard.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false,
+                          });
+                        })
+                        .catch(() => {
+                          Swal.fire({
+                            title: "Error!",
+                            text: "Failed to copy the URL. Please try again.",
+                            icon: "error",
+                            timer: 1600,
+                            showConfirmButton: false,
+                          });
+                        });
+                    }}
+                  >
+                    Copy URL
+                  </button>
+                </>
               )}
-              <button
-                className={`text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-110 rounded-lg ${localStorage.getItem("token") ? "" : "hidden"
-                  }`} // if show + Center when Edit button is not present -> mx-auto instead of hidden
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href)
-                    .then(() => {
-                      Swal.fire({
-                        title: "Copied!",
-                        text: "Card URL has been copied to the clipboard.",
-                        icon: "success",
-                        timer: 1500,
-                        showConfirmButton: false,
-                      });
-                    })
-                    .catch(() => {
-                      Swal.fire({
-                        title: "Error!",
-                        text: "Failed to copy the URL. Please try again.",
-                        icon: "error",
-                        timer: 1600,
-                        showConfirmButton: false,
-                      });
-                    });
-                }}
-              >
-                Copy URL
-              </button>
-
             </div>
 
-
+            {/* QR Code Section */}
             <div className="flex flex-col items-center justify-center mt-6 mx-auto w-full max-w-[400px]">
               {localStorage.getItem("token") && (
                 !qrCode ? (
-                  
                   <button
                     onClick={generateQRCode}
                     className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
@@ -843,7 +850,6 @@ function Card() {
                     QR Code
                   </button>
                 ) : (
-                  // Show the QR code and its description if the QR code is generated
                   <div className="mt-4 flex flex-col items-center justify-center">
                     <img
                       src={qrCode}
@@ -855,11 +861,28 @@ function Card() {
                 )
               )}
             </div>
-
-
+            {/* Navigation option to /Register when not logged in */}
+            <div>
+              {!localStorage.getItem("token") && (
+                <>
+                  <p className="text-gray-800 font-bold text-xl">Sign up to create your own unique cards</p>
+                  <button
+                    className="py-2 px-3 bg-gray-800 hover:scale-110 rounded-3xl mt-4"
+                  >
+                    <img
+                      onClick={() => navigate("/register")}
+                      className="h-[150px] xl:h-[180px] hover:scale-110 p-4"
+                      src="/assets/syncBro-WHITE-ALIGNED.png"
+                      alt="logo"
+                    />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
+
 
       <ToastContainer
         position="top-center" // Set notification position globally
