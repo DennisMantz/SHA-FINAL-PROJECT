@@ -316,11 +316,9 @@ function Card() {
 
 
   return (
-    <div className="bg-gray-200 min-h-screen ">
-      {localStorage.getItem("token") && (
-        <Navbar />
-      )}
-
+    <main className="bg-gray-200 min-h-screen ">
+      {localStorage.getItem("token") && (<Navbar />)}
+      
       <div className="flex justify-end max-w-[480px] mx-auto relative">
         {/* Card Title */}
         <div className={`mt-3 ${isEditing ? 'mx-auto' : 'justify-end'}`}>
@@ -522,7 +520,9 @@ function Card() {
                     <button
                       onClick={() => setShowFullAbout(!showFullAbout)}
                       className="ml-1 bg-none border-none text-blue-900 text-sm underline cursor-pointer"
-                    >
+                      style={{
+                        color: `${circleTextColor} `
+                      }}>
                       {showFullAbout ? 'See less' : 'See More'}
                     </button>
                   )}
@@ -832,28 +832,27 @@ function Card() {
             </div>
 
 
-            {/* Add QR Code block */}
             <div className="flex flex-col items-center justify-center mt-6 mx-auto w-full max-w-[400px]">
-              {!qrCode ? (
-                // Show the "Generate QR Code" button if the QR code is not generated
-                <button
-                  onClick={generateQRCode}
-                  className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
-                >
-                  Generate QR Code
-                </button>
-              ) : (
-                // Show the QR code and its description if the QR code is generated
-                <div className="mt-4 flex flex-col items-center justify-center">
-                  <img
-                    src={qrCode}
-                    alt="Card QR Code"
-                    className="w-48 h-48 rounded-lg border-2 border-gray-800 shadow-lg"
-                  />
-                  <p className="mt-2 text-gray-700 font-semibold">
-                    Scan ME!
-                  </p>
-                </div>
+              {localStorage.getItem("token") && (
+                !qrCode ? (
+                  
+                  <button
+                    onClick={generateQRCode}
+                    className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
+                  >
+                    QR Code
+                  </button>
+                ) : (
+                  // Show the QR code and its description if the QR code is generated
+                  <div className="mt-4 flex flex-col items-center justify-center">
+                    <img
+                      src={qrCode}
+                      alt="Card QR Code"
+                      className="w-48 h-48 rounded-lg border-2 border-gray-800 shadow-lg"
+                    />
+                    <p className="mt-2 text-gray-700 font-semibold">Scan ME!</p>
+                  </div>
+                )
               )}
             </div>
 
@@ -873,7 +872,7 @@ function Card() {
         draggable={false} // Allow dragging the notification
         pauseOnHover={false} // Pause timer on hover
       />
-    </div>
+    </main>
   );
 }
 

@@ -162,7 +162,7 @@ const deleteBookmark = async (id) => {
         }).join("");
     
         Swal.fire({
-            title: "Hold Ctrl + R-Click on DA links",
+            title: "Hold Ctrl/Cmd + Click on links to open multiple tabs",
             html: `
                 <div class="text-left text-lg">
                     ${formattedLinks}
