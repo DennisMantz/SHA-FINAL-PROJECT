@@ -12,7 +12,7 @@ import jwtDecode from "jwt-decode";
 const API_URL = import.meta.env.MODE === "development"
   ? import.meta.env.VITE_API_URL_LOCAL
   : import.meta.env.VITE_API_URL_PROD;
-console.log("Using API URL:", API_URL);
+// console.log("Using API URL:", API_URL);
 
 function Card() {
   const navigate = useNavigate();

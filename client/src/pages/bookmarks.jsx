@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.MODE === "development"
   ? import.meta.env.VITE_API_URL_LOCAL
   : import.meta.env.VITE_API_URL_PROD;
-console.log("Using API URL:", API_URL);
+// console.log("Using API URL:", API_URL);
 
 
 function BookmarkManager() {
@@ -185,13 +185,20 @@ const handleAddBookmarkClick = () => {
     // Open links in new tabs
     const openLinks = (links) => {
         const formattedLinks = links.map((link) => {
-            const url = link.url; // Use the original URL
-            const displayText = url.length > 40 ? `${url.substring(0, 40)}...` : url; // Shorten display text if too long
+            // Ensure the link starts with http:// or https://
+            const url = link.url.startsWith("http://") || link.url.startsWith("https://")
+                ? link.url
+                : `https://${link.url}`;
+    
+            const displayText = link.url.length > 40 
+                ? `${link.url.substring(0, 40)}...`  // Shorten original input if too long
+                : link.url;  // Use the original input for display
+    
             return `<a 
-                        href="https://${url}" 
+                        href="${url}" 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        class="text-blue-800  hover:text-blue-700 hover:scale-110 hover:ml-4 block" 
+                        class="text-blue-800 hover:text-blue-700 hover:scale-110 hover:ml-4 block" 
                         title="${url}"> <!-- Full URL is displayed on hover -->
                         ${displayText}
                     </a>`;
