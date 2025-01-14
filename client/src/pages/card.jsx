@@ -17,10 +17,11 @@ console.log("Using API URL:", API_URL);
 function Card() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation(); // Access location state
+  const location = useLocation();
   const [showFullAbout, setShowFullAbout] = useState(false);
   const [qrCode, setQrCode] = useState("");
-  const [isOwner, setIsOwner] = useState(false); // Ownership state
+  const [isOwner, setIsOwner] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // State for card data
   const [card, setCard] = useState({
@@ -115,15 +116,15 @@ function Card() {
         const response = await axios.get(`${API_URL}/cards/${id}`);
         setCard(response.data);
 
- // Check if the logged-in user is the owner
- const token = localStorage.getItem("token");
- if (token) {
-   const decodedToken = jwtDecode(token); // Decode the token to get userId
-   if (response.data.cardCreator === decodedToken.userId) {
-     setIsOwner(true); // Set ownership state
-   }
- }
-} catch (error) {
+        // Check if the logged-in user is the owner
+        const token = localStorage.getItem("token");
+        if (token) {
+          const decodedToken = jwtDecode(token); // Decode the token to get userId
+          if (response.data.cardCreator === decodedToken.userId) {
+            setIsOwner(true); // Set ownership state
+          }
+        }
+      } catch (error) {
         console.error("Error fetching card data:", error);
         Swal.fire({
           title: "Error",
@@ -327,15 +328,19 @@ function Card() {
   };
 
 
-  
+
   // Used in the QR code generation + copy URL logic
   const generateCardUrl = (id) => `${window.location.origin}/shareBro/${id}`;
-// Function to generate QR code
+  // Function to generate QR code
   const generateQRCode = async () => {
-  const cardUrl = generateCardUrl(id); // Use the reusable function
-  const qrImage = await QRCode.toDataURL(cardUrl); // Generate QR code image
-  setQrCode(qrImage); // Set the QR code image
-};
+    const cardUrl = generateCardUrl(id); // Use the reusable function
+    const qrImage = await QRCode.toDataURL(cardUrl); // Generate QR code image
+    setQrCode(qrImage); // Set the QR code image
+    setIsModalVisible(true); // Show modal
+  };
+  const handleModalClose = () => {
+    setIsModalVisible(false); // Hide modal
+  };
 
 
   return (
@@ -344,41 +349,55 @@ function Card() {
 
       <div className="flex justify-end max-w-[480px] mx-auto relative">
         {/* Card Title */}
-        <div className={`mt-3 ${isEditing ? 'mx-auto' : 'justify-end'}`}>
-          {/*  className={`flex flex-col items-center col-span-2 ${isEditing ? 'space-y-2' : 'space-y-1'}`}> */}
-          {isEditing ? (
-            <>
-              <label
-                htmlFor="cardTitle"
-                className="mr-2 font-bold text-black"
-              >
-                Card Name:
-              </label>
-              <input
-                id="cardTitle"
-                type="text"
-                name="cardTitle"
-                value={card.cardTitle}
-                placeholder="Only you can see this"
-                onChange={handleInputChange}
-                className="border border-gray-300 rounded px-2 py-1 text-black"
-                maxLength={16}
-              />
-            </>
-          ) : (
-            isOwner && (
-              <div className="">
-                <button
-                  className=" hover:scale-110  absolute left-[429px] top-[6px]"
-                  onClick={() => navigate("/Cards")}
+        <div className="mt-3 mx-auto">
+          {isOwner ? (
+            isEditing ? (
+              <>
+                <label
+                  htmlFor="cardTitle"
+                  className="mr-2 font-bold text-black"
                 >
-                  <img src="/assets/circle-xmark-solid-sm-back.svg" alt="Back" className="w-8 h-8" />
-                </button>
+                  Card Name:
+                </label>
+                <input
+                  id="cardTitle"
+                  type="text"
+                  name="cardTitle"
+                  value={card.cardTitle}
+                  placeholder="Only you can see this"
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded px-2 py-1 text-black"
+                  maxLength={16}
+                />
+              </>
+            ) : (
+              <div className="display flex">
+                <label
+                  htmlFor="cardTitle"
+                  className="mr-2 font-bold text-black"
+                >
+                  Card Name:
+                </label>
+                <h2 className="font-bold  text-black text-center">{card.cardTitle}</h2>
+                <div className="absolute left-[429px] top-[29px]">
+                  <button
+                    className="hover:scale-110"
+                    onClick={() => navigate("/Cards")}
+                  >
+                    <img
+                      src="/assets/circle-xmark-solid-sm-back.svg"
+                      alt="Back"
+                      className="w-8 h-8"
+                    />
+                  </button>
+                </div>
               </div>
             )
-          )}
+          ) : null}
+
         </div>
       </div>
+
 
       {/* Card Display */}
       <div className="m-3 p-4 border rounded-lg border-gray-800 max-w-[400px] h-[full] mx-auto "
@@ -823,9 +842,15 @@ function Card() {
         ) : (
           <div>
             {/* Buttons Section */}
-            <div className="flex justify-center space-x-4 mt-2 max-w-[400px] mx-auto">
+            <div className="flex justify-between space-x-4 mt-2 max-w-[400px] mx-auto">
               {isOwner && (
                 <>
+                  <button
+                    onClick={generateQRCode}
+                    className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
+                  >
+                    QR Code
+                  </button>
                   <button
                     className="text-white font-bold py-2 px-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:scale-110 rounded-lg"
                     onClick={toggleEditMode}
@@ -861,30 +886,32 @@ function Card() {
                   </button>
                 </>
               )}
+
             </div>
 
-            {/* QR Code Section */}
-            <div className="flex flex-col items-center justify-center mt-6 mx-auto w-full max-w-[400px]">
-              {isOwner && (
-                !qrCode ? (
-                  <button
-                    onClick={generateQRCode}
-                    className="text-white font-bold py-2 px-3 bg-gradient-to-b from-blue-900 to-blue-800 hover:scale-105 rounded-lg"
-                  >
-                    QR Code
-                  </button>
-                ) : (
-                  <div className="mt-4 flex flex-col items-center justify-center">
+
+
+            {/* Modal for QR Code */}
+            {isModalVisible && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
+                  <h2 className="text-lg font-bold mb-4">Scan ME!</h2>
+                  {qrCode && (
                     <img
                       src={qrCode}
                       alt="Card QR Code"
-                      className="w-48 h-48 rounded-lg border-2 border-gray-800 shadow-lg"
+                      className="w-48 h-48 mx-auto mb-4 rounded-lg border-2 border-gray-800 shadow-lg"
                     />
-                    <p className="mt-2 text-gray-700 font-semibold">Scan ME!</p>
-                  </div>
-                )
-              )}
-            </div>
+                  )}
+                  <button
+                    onClick={handleModalClose}
+                    className="text-white font-bold py-2 px-4 bg-red-500 hover:bg-red-600 rounded-lg"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Navigation option to /Register when not logged in */}
             <div>
               {!isOwner && (
