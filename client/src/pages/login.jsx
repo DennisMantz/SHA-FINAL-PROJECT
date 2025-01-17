@@ -93,6 +93,8 @@ function Login() {
     <div className="grid grid-cols-1 sm:grid-cols-3 w-full min-h-screen">
       {/* Left Section */}
       <div className="col-span-2 bg-gray-200 flex items-center justify-center">
+
+        
         <form onSubmit={handleSubmit} className="w-full max-w-sm p-6 bg-white rounded shadow">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 

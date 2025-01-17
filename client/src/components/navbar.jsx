@@ -7,7 +7,7 @@ function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="h-[15%]  xl:h-[20%] min-w-screen grid grid-cols-[1fr_auto_1fr] items-center bg-gray-800 text-white">
+    <header className=" min-w-screen grid grid-cols-[1fr_auto_1fr] items-center bg-gray-800 text-white">
       {/* Left Placeholder */}
       <div></div>
 
